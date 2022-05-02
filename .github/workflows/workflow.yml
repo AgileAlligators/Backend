@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USER }}/${{ env.GITHUB_REPOSITORY_SLUG }}:${{ github.sha }}, ${{ secrets.DOCKER_USER }}/${{ env.GITHUB_REPOSITORY_SLUG }}:latest
+          tags: ${{ secrets.DOCKER_USER }}/${{ env.GITHUB_REPOSITORY_NAME_PART }}:${{ github.sha }}, ${{ secrets.DOCKER_USER }}/${{ env.GITHUB_REPOSITORY_NAME_PART }}:latest
 
   update:
     runs-on: ubuntu-latest
