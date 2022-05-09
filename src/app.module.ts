@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CarrierModule } from './carrier/carrier.module';
 import { AccountModule } from './account/account.module';
 import { AnalyzerModule } from './analyzer/analyzer.module';
+import { DiagramModule } from './diagram/diagram.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AnalyzerModule } from './analyzer/analyzer.module';
     CarrierModule,
     AccountModule,
     AnalyzerModule,
+    DiagramModule,
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })
