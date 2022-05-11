@@ -9,10 +9,10 @@ import { LineDiagramDto } from './dto/line-diagram.dto';
 @ApiTags('Diagram')
 @Controller('diagram')
 export class DiagramController {
-  constructor(private readonly diagramService: DiagramService) { }
+  constructor(private readonly diagramService: DiagramService) {}
 
   @Post('/line-diagram')
-  getLoadOverTime(@Body() filter: DiagramFilterDto): Promise<LineDiagramDto> {
-    return this.diagramService.getLoadOverTime(filter);
+  getLineDiagram(@Body() filter: DiagramFilterDto): Promise<LineDiagramDto> {
+    return this.diagramService.getLineDiagram(filter);
   }
 }

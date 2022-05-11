@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { MongoIdTypes } from 'src/_common/decorators/MongoId.decorator';
 
 @Injectable()
@@ -17,3 +22,6 @@ export const InvalidAccount = (accountId: string) =>
 
 export const InvalidCarrier = (carrierId: string) =>
   new ItemNotFoundException(MongoIdTypes.CARRIER, carrierId);
+
+export const InvalidDiagrammRequest = (diagrammRequest: string) =>
+  new BadRequestException(MongoIdTypes.DIAGRAM, diagrammRequest);

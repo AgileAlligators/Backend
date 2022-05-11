@@ -10,4 +10,4 @@ import { LoadDefinition } from 'src/carrier/schemas/Load.schema';
   providers: [DiagramService],
   exports: [DiagramService],
 })
-export class DiagramModule { }
+export class DiagramModule {}

@@ -1,14 +1,17 @@
-import { IsMongoId, IsNumber, IsOptional } from 'class-validator';
+import { IsInt, IsMongoId, IsOptional, IsString } from 'class-validator';
 
 export class DiagramFilterDto {
   @IsMongoId()
   id: string;
 
-  @IsOptional()
-  @IsNumber()
-  start?: string[];
+  @IsString()
+  dataRequest: string;
 
   @IsOptional()
-  @IsNumber()
-  end?: string[];
+  @IsInt()
+  start?: number;
+
+  @IsOptional()
+  @IsInt()
+  end?: number;
 }
