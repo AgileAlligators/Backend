@@ -98,7 +98,7 @@ export class AccountController {
 
   @ApiResponse({ type: [String] })
   @Perms('account.organisation.list')
-  @Delete('organisation')
+  @Get('organisation')
   async getOrganisations(): Promise<string[]> {
     return this.accountService.getOrganisations();
   }
