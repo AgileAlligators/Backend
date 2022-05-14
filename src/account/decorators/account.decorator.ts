@@ -11,18 +11,16 @@ const RAccount = createParamDecorator(
 );
 
 const ROrganisation = createParamDecorator(
-  (data: string, ctx: ExecutionContext): string => {
+  (_, ctx: ExecutionContext): string => {
     const user = ctx.switchToHttp().getRequest().user;
     return user ? user.organisation : '';
   },
 );
 
-const RId = createParamDecorator(
-  (data: string, ctx: ExecutionContext): string => {
-    const user = ctx.switchToHttp().getRequest().user;
-    return user ? user.id : '';
-  },
-);
+const RId = createParamDecorator((_, ctx: ExecutionContext): string => {
+  const user = ctx.switchToHttp().getRequest().user;
+  return user ? user.id : '';
+});
 
 const RawId = createParamDecorator((_, ctx: ExecutionContext): string => {
   const user = ctx.switchToHttp().getRequest().user;
