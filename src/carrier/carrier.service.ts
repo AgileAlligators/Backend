@@ -201,7 +201,7 @@ export class CarrierService {
     });
 
     const prevLocation = await this.locationModel.findOne(
-      { timestamp: { $lt: location.timestamp } },
+      { carrierId, timestamp: { $lt: location.timestamp } },
       undefined,
       { sort: { timestamp: -1 } },
     );
