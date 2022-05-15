@@ -5,7 +5,7 @@ export class CreateOrganisationDto {
   @ApiProperty({
     required: true,
     type: String,
-    example: 'Porsche AG',
+    example: 'Porsche-AG',
     minLength: 2,
   })
   @IsNotIn(['ligenium'], { message: 'Der Name darf nicht ligenium sein' })

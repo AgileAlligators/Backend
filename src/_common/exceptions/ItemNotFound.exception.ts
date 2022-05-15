@@ -17,3 +17,9 @@ export const InvalidAccount = (accountId: string) =>
 
 export const InvalidCarrier = (carrierId: string) =>
   new ItemNotFoundException(MongoIdTypes.CARRIER, carrierId);
+
+export const InvalidLoad = (loadId: string) =>
+  new ItemNotFoundException(MongoIdTypes.LOAD, loadId);
+
+export const InvalidLocation = (locationId: string) =>
+  new ItemNotFoundException(MongoIdTypes.LOCATION, locationId);
