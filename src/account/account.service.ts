@@ -23,8 +23,6 @@ export const REGISTERED_PERMISSIONS = new Set<string>();
 
 Injectable();
 export class AccountService {
-  public SYSTEM_ID = '';
-
   constructor(
     @InjectModel(Account.name) private readonly accountModel: Model<Account>,
     private readonly jwtService: JwtService,
@@ -58,7 +56,7 @@ export class AccountService {
     }
 
     return this.create(
-      this.SYSTEM_ID,
+      'system',
       { username: 'TU_' + organisation, password: organisation },
       organisation,
       'admin',
@@ -111,7 +109,8 @@ export class AccountService {
     organisation: string,
     group?: 'admin' | 'default',
   ): Promise<Account> {
-    if (!isMongoId(accountId)) throw InvalidAccount(accountId);
+    if (accountId !== 'system' && !isMongoId(accountId))
+      throw InvalidAccount(accountId);
 
     const { username, password } = dto;
 
@@ -255,7 +254,7 @@ export class AccountService {
 
     const hash = await this.hashPassword(pass);
 
-    const account = await this.accountModel.findOneAndUpdate(
+    await this.accountModel.findOneAndUpdate(
       { _createdBy: 'system' },
       {
         $set: {
@@ -268,7 +267,6 @@ export class AccountService {
       },
       { upsert: true, useFindAndMofiy: true, new: true },
     );
-    this.SYSTEM_ID = account._id;
 
     Logger.log('INIT Account angelegt', 'AccountModule');
   }
