@@ -38,10 +38,18 @@ export class AccountService {
   }
 
   public async getOrganisations(): Promise<string[]> {
-    return this.accountModel.find().distinct('organisation');
+    return this.accountModel
+      .find({ _createdBy: { $ne: 'system' } })
+      .distinct('organisation');
   }
 
   public async createOrganisation(organisation: string): Promise<Account> {
+    if (organisation.toLowerCase() === 'ligenium') {
+      throw new UnprocessableEntityException(
+        'Diese Organisation existiert bereits',
+      );
+    }
+
     const orgs = await this.getOrganisations();
     if (orgs.some((x) => x.toLowerCase() === organisation.toLowerCase())) {
       throw new UnprocessableEntityException(
@@ -253,7 +261,7 @@ export class AccountService {
         $set: {
           username: name,
           password: hash,
-          permissions: [],
+          permissions: ['account.organisation.*'],
           organisation: 'ligenium',
           group: 'system',
         },
