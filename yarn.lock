@@ -1885,6 +1885,16 @@ component-emitter@^1.3.0:
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"
   integrity sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==
 
+compute-deg2rad@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/compute-deg2rad/-/compute-deg2rad-1.0.0.tgz#8d23d2251b74bb73c9552d345e65ff4ab1850b0b"
+  integrity sha1-jSPSJRt0u3PJVS00XmX/SrGFCws=
+
+compute-rad2deg@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/compute-rad2deg/-/compute-rad2deg-1.0.0.tgz#6fdd7afe7304a08a75a7213a5d0d66ebb38e2ad8"
+  integrity sha1-b916/nMEoIp1pyE6XQ1m67OOKtg=
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
@@ -2710,6 +2720,14 @@ gensync@^1.0.0-beta.2:
   version "1.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==
+
+geo-point@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/geo-point/-/geo-point-1.2.2.tgz#143e907dd128b7916c95a9bdec982c785cf74790"
+  integrity sha512-ffSU2eLL3QeJkmx1J7YvVnu8eneX1GxjBzjHa8kYa3A/7JdP3dZIma7AMfQWZFNBk333YtnZqlJ5BJzKZYJA+A==
+  dependencies:
+    compute-deg2rad "^1.0.0"
+    compute-rad2deg "^1.0.0"
 
 get-caller-file@^2.0.5:
   version "2.0.5"

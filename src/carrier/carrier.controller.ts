@@ -9,12 +9,14 @@ import {
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierService } from './carrier.service';
 import { CarrierFilterDto } from './dtos/carrier-filter.dto';
+import { CarrierIdleFilterDto } from './dtos/carrier-idle-filter.dto';
 import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
 import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
 import { CreateCarrierDto, UpdateCarrierDto } from './dtos/create-carrier.dto';
 import { StoreLoadDto } from './dtos/store-load.dto';
 import { StoreLocationDto } from './dtos/store-location.dto';
 import { Carrier } from './schemas/Carrier.schema';
+import { Idle } from './schemas/Idle.schema';
 import { Load } from './schemas/Load.schema';
 import { Location } from './schemas/Location.schema';
 
@@ -141,5 +143,14 @@ export class CarrierController {
       carrierId,
       locationId,
     );
+  }
+
+  @ApiResponse({ type: [Idle] })
+  @Post(':carrierId/idle/search')
+  async searchIdle(
+    @ROrganisation() organisation: string,
+    @Body() dto: CarrierIdleFilterDto,
+  ): Promise<SearchResult<Idle>> {
+    return this.carrierService.searchIdle(organisation, dto);
   }
 }
