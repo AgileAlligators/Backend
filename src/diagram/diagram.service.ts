@@ -10,6 +10,8 @@ import {
 import { DiagramFilterDto } from './dto/diagramm-filter.dto';
 import { LineDiagramDto } from './dto/line-diagram.dto';
 
+const DATA_REQUEST_TYPES = ['loadOverTime'];
+
 @Injectable()
 export class DiagramService {
   constructor(
@@ -19,14 +21,17 @@ export class DiagramService {
   async getLineDiagram(filter: DiagramFilterDto): Promise<LineDiagramDto> {
     if (!isMongoId(filter.id)) throw InvalidCarrier(filter.id);
 
-    if (!(filter.dataRequest in DATA_REQUEST_TYPES))
+    if (!DATA_REQUEST_TYPES.includes(filter.dataRequest))
       throw InvalidDiagrammRequest(filter.dataRequest);
 
-    return await this.getLoadOverTime(filter);
+    switch (filter.dataRequest) {
+      case 'loadOverTime':
+        return await this.getLoadOverTime(filter);
+    }
   }
 
   async getLoadOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto> {
-    const load: Load[] = await this.loadModel.find({
+    let load: Load[] = await this.loadModel.find({
       where: {
         carrierId: filter.id,
         timestamp: {
@@ -36,6 +41,11 @@ export class DiagramService {
       },
     });
 
+    // $gt and $lt don't seem to work
+    load = load.filter(
+      (l) => l.timestamp >= filter.start && l.timestamp <= filter.end,
+    );
+
     const dataPairs: [any, any][] = load.map((l) => [l.timestamp, l.load]);
 
     return {
@@ -43,5 +53,3 @@ export class DiagramService {
     };
   }
 }
-
-const DATA_REQUEST_TYPES = ['loadOverTime'];
