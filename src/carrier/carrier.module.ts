@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CarrierController } from './carrier.controller';
 import { CarrierService } from './carrier.service';
 import { CarrierDefinition } from './schemas/Carrier.schema';
+import { IdleDefinition } from './schemas/Idle.schema';
 import { LoadDefinition } from './schemas/Load.schema';
 import { LocationDefinition } from './schemas/Location.schema';
 
@@ -12,6 +13,7 @@ import { LocationDefinition } from './schemas/Location.schema';
       CarrierDefinition,
       LocationDefinition,
       LoadDefinition,
+      IdleDefinition,
     ]),
   ],
   providers: [CarrierService],
