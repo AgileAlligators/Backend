@@ -1,5 +1,10 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import {
+  ApiCarrierCustomer,
+  ApiCarrierOrder,
+  ApiCarrierType,
+} from '../carrier.api';
 
 @Schema({
   toJSON: {
@@ -13,16 +18,19 @@ import { Document } from 'mongoose';
   },
 })
 export class Carrier extends Document {
-  @Prop()
+  @Prop({ required: true })
   _organisation: string;
 
-  @Prop()
+  @ApiCarrierType({ required: true })
+  @Prop({ required: true })
   type: string;
 
-  @Prop()
+  @ApiCarrierCustomer({ required: true })
+  @Prop({ required: true })
   customer: string;
 
-  @Prop()
+  @ApiCarrierOrder({ required: true })
+  @Prop({ required: true })
   order: string;
 }
 

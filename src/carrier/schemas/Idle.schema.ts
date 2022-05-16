@@ -2,23 +2,19 @@ import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { ApiCarrierId, ApiCarrierTimestamp } from '../carrier.api';
-import { GeoJSON } from '../models/GeoJson.model';
 
 @Schema({
   toJSON: {
     virtuals: true,
-    transform: (_, ret: Location) => {
+    transform: (_, ret: Idle) => {
       delete ret._id;
       delete ret.__v;
-
-      (ret as any).coordinates = ret.location.coordinates;
-      delete ret.location;
 
       return ret;
     },
   },
 })
-export class Location extends Document {
+export class Idle extends Document {
   @ApiCarrierId({ required: true })
   @Prop({ required: true })
   carrierId: string;
@@ -28,20 +24,20 @@ export class Location extends Document {
   timestamp: number;
 
   @ApiProperty({
-    type: [Number, Number],
-    name: 'coordinates',
-    description:
-      'Koordinaten (longitude [-180 bis 180], latitude [-90 bis 90])',
-    example: [0, 0],
     required: true,
+    type: Number,
+    description:
+      'Wie lange stand der Ladungsträger am angegeben Zeitpunkt bereits reglos da (in Sekunden)',
+    example: 6000,
+    minimum: 0,
   })
   @Prop({ required: true })
-  location: GeoJSON;
+  idle: number;
 }
 
-const LocationSchema = SchemaFactory.createForClass(Location);
+const IdleSchema = SchemaFactory.createForClass(Idle);
 
-export const LocationDefinition: ModelDefinition = {
-  name: Location.name,
-  schema: LocationSchema,
+export const IdleDefinition: ModelDefinition = {
+  name: Idle.name,
+  schema: IdleSchema,
 };

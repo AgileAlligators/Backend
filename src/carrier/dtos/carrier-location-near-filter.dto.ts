@@ -1,14 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
-import { ApiCarrierTimestamp } from '../carrier.api';
+import { IsNumber, Max, Min } from 'class-validator';
 
-export class StoreLocationDto {
-  @ApiCarrierTimestamp({ required: false })
-  @IsOptional()
-  @Min(0, { message: 'Der Zeitstempel muss größer als 0 sein' })
-  @IsInt({ message: 'Der Zeitstempel muss las ganze Zahl angegeben werden' })
-  timestamp?: number;
-
+export class CarrierLocationNearFilterDto {
   @ApiProperty({
     type: Number,
     minimum: -180,
@@ -34,4 +27,15 @@ export class StoreLocationDto {
   @Min(-90, { message: 'Der Breitengrad darf nicht kleiner als -90 sein' })
   @IsNumber({}, { message: 'Der Breitengrad muss als Zahl angegeben werden' })
   latitude: number;
+
+  @ApiProperty({
+    type: Number,
+    minimum: 0,
+    description: 'In welchem Radius zum angegebenen Punkt wird gesucht',
+    example: 10,
+    required: true,
+  })
+  @Min(0, { message: 'Der Radius kann nicht kleiner als 0 sein' })
+  @IsNumber({}, { message: 'Der Radius muss als Zahl angegeben werden' })
+  radius: number;
 }

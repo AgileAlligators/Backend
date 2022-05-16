@@ -31,7 +31,10 @@ export function Auth() {
 }
 
 export function Perms(...perms: string[]) {
-  transformPermissions(perms).forEach((p) => REGISTERED_PERMISSIONS.add(p));
+  transformPermissions(perms)
+    .filter((p) => !p.includes('organisation'))
+    .forEach((p) => REGISTERED_PERMISSIONS.add(p));
+
   return applyDecorators(
     SetMetadata(meta, perms),
     UseGuards(JwtAuthGuard, PermsGuard),

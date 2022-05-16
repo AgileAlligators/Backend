@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -28,6 +33,38 @@ export class AccountService {
 
   public getPermissions(): string[] {
     return [...REGISTERED_PERMISSIONS];
+  }
+
+  public async getOrganisations(): Promise<string[]> {
+    return this.accountModel
+      .find({ _createdBy: { $ne: 'system' } })
+      .distinct('organisation');
+  }
+
+  public async createOrganisation(organisation: string): Promise<Account> {
+    if (organisation.toLowerCase() === 'ligenium') {
+      throw new UnprocessableEntityException(
+        'Diese Organisation existiert bereits',
+      );
+    }
+
+    const orgs = await this.getOrganisations();
+    if (orgs.some((x) => x.toLowerCase() === organisation.toLowerCase())) {
+      throw new UnprocessableEntityException(
+        'Diese Organisation existiert bereits',
+      );
+    }
+
+    return this.create(
+      'system',
+      { username: 'TU_' + organisation, password: organisation },
+      organisation,
+      'admin',
+    );
+  }
+
+  public async deleteOrganisation(organisation: string): Promise<void> {
+    this.accountModel.deleteMany({ organisation });
   }
 
   private async getByName(username: string): Promise<Account> {
@@ -70,8 +107,10 @@ export class AccountService {
     accountId: string,
     dto: CreateAccountDto,
     organisation: string,
+    group?: 'admin' | 'default',
   ): Promise<Account> {
-    if (!isMongoId(accountId)) throw InvalidAccount(accountId);
+    if (accountId !== 'system' && !isMongoId(accountId))
+      throw InvalidAccount(accountId);
 
     const { username, password } = dto;
 
@@ -91,7 +130,7 @@ export class AccountService {
       username: username,
       password: hash,
       permissions: [],
-      group: 'default',
+      group: group || 'default',
       organisation: organisation,
       _createdBy: accountId,
     });
@@ -215,19 +254,20 @@ export class AccountService {
 
     const hash = await this.hashPassword(pass);
 
-    await this.accountModel.updateOne(
+    await this.accountModel.findOneAndUpdate(
       { _createdBy: 'system' },
       {
         $set: {
           username: name,
           password: hash,
-          permissions: [],
+          permissions: ['account.organisation.*'],
           organisation: 'ligenium',
           group: 'system',
         },
       },
-      { upsert: true, useFindAndMofiy: true },
+      { upsert: true, useFindAndMofiy: true, new: true },
     );
+
     Logger.log('INIT Account angelegt', 'AccountModule');
   }
 }

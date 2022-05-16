@@ -25,3 +25,9 @@ export const InvalidCarrier = (carrierId: string) =>
 
 export const InvalidDiagrammRequest = (diagrammRequest: string) =>
   new BadRequestException(MongoIdTypes.DIAGRAM, diagrammRequest);
+  
+export const InvalidLoad = (loadId: string) =>
+  new ItemNotFoundException(MongoIdTypes.LOAD, loadId);
+
+export const InvalidLocation = (locationId: string) =>
+  new ItemNotFoundException(MongoIdTypes.LOCATION, locationId);

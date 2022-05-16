@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   UseGuards,
@@ -21,6 +22,7 @@ import {
 } from './decorators/account.decorator';
 import { ChangePermissionsDto } from './dtos/change-permissions.dto';
 import { CreateAccountDto } from './dtos/create-account.dto';
+import { CreateOrganisationDto } from './dtos/create-organisation.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { SetGroupDto } from './dtos/set-group.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
@@ -74,6 +76,31 @@ export class AccountController {
     @Body() dto: CreateAccountDto,
   ): Promise<Account> {
     return this.accountService.create(accountId, dto, organisation);
+  }
+
+  @ApiResponse({ type: Account })
+  @Perms('account.organisation.create')
+  @Post('organisation')
+  async createOrganisation(
+    @Body() dto: CreateOrganisationDto,
+  ): Promise<Account> {
+    return this.accountService.createOrganisation(dto.name);
+  }
+
+  @ApiResponse({ type: Account })
+  @Perms('account.organisation.delete')
+  @Delete('organisation/:organisation')
+  async deleteOrganisation(
+    @Param('organisation') organisation: string,
+  ): Promise<void> {
+    this.accountService.deleteOrganisation(organisation);
+  }
+
+  @ApiResponse({ type: [String] })
+  @Perms('account.organisation.list')
+  @Get('organisation')
+  async getOrganisations(): Promise<string[]> {
+    return this.accountService.getOrganisations();
   }
 
   @ApiResponse({ type: Boolean })
