@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isMongoId } from 'class-validator';
+import { debug } from 'console';
 import { Model } from 'mongoose';
 import { Load } from 'src/carrier/schemas/Load.schema';
 import {
@@ -18,8 +19,10 @@ export class DiagramService {
     @InjectModel(Load.name) private readonly loadModel: Model<Load>,
   ) {}
 
-  async getLineDiagram(filter: DiagramFilterDto): Promise<LineDiagramDto> {
-    if (!isMongoId(filter.id)) throw InvalidCarrier(filter.id);
+  async getLineDiagram(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
+    for (const id of filter.ids) {
+      if (!isMongoId(id)) throw InvalidCarrier(id);
+    }
 
     if (!DATA_REQUEST_TYPES.includes(filter.dataRequest))
       throw InvalidDiagrammRequest(filter.dataRequest);
@@ -30,10 +33,12 @@ export class DiagramService {
     }
   }
 
-  async getLoadOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto> {
+  async getLoadOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
     let load: Load[] = await this.loadModel.find({
       where: {
-        carrierId: filter.id,
+        carrierId: {
+          $in: filter.ids,
+        },
         timestamp: {
           $gt: filter.start,
           $lt: filter.end,
@@ -41,15 +46,28 @@ export class DiagramService {
       },
     });
 
+    // $in doesn't seem to work
+    load = load.filter((l) => filter.ids.includes(l.carrierId));
+
     // $gt and $lt don't seem to work
     load = load.filter(
       (l) => l.timestamp >= filter.start && l.timestamp <= filter.end,
     );
 
-    const dataPairs: [any, any][] = load.map((l) => [l.timestamp, l.load]);
+    const diagrams: LineDiagramDto[] = load
+      .map((l) => {
+        return { carrierId: l.carrierId, dataPairs: [[l.timestamp, l.load]] };
+      })
+      .reduce((diagrams: LineDiagramDto[], load: LineDiagramDto) => {
+        const diagram = diagrams.find((d) => d.carrierId == load.carrierId);
+        if (!diagram) {
+          diagrams.push(load);
+        } else {
+          diagram.dataPairs.push(load.dataPairs[0]);
+        }
+        return diagrams;
+      }, []);
 
-    return {
-      dataPairs: dataPairs,
-    };
+    return diagrams;
   }
 }

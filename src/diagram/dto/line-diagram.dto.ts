@@ -2,6 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LineDiagramDto {
   @ApiProperty({
+    description: 'Carrier id',
+    example: "123456",
+  })
+  carrierId: string;
+
+  @ApiProperty({
     description: 'List of data pairs',
     example: [
       [1652394005, 0.75],

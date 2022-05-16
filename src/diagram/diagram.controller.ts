@@ -21,7 +21,7 @@ export class DiagramController {
     required: true,
   })
   @Post('/line-diagram')
-  getLineDiagram(@Body() filter: DiagramFilterDto): Promise<LineDiagramDto> {
+  getLineDiagram(@Body() filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
     return this.diagramService.getLineDiagram(filter);
   }
 }

@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsMongoId, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class DiagramFilterDto {
   @ApiProperty({
-    description: 'Carrier id',
-    example: '123456',
+    description: 'Carrier ids',
+    example: '["123456", "234567"]',
   })
-  @IsMongoId()
-  id: string;
+  @IsArray()
+  ids: string[];
 
   @ApiProperty({
     description: 'Type of data that should be aggregated into a diagram',
