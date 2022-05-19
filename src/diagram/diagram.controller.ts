@@ -14,7 +14,7 @@ export class DiagramController {
   @ApiOperation({ description: 'Create a line diagram with given filter' })
   @ApiResponse({
     type: LineDiagramDto,
-    description: 'Returns the requested line diagram',
+    description: 'Returns the requested data for a line diagram',
   })
   @ApiBody({
     type: DiagramFilterDto,

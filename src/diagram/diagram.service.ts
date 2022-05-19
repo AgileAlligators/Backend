@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isMongoId } from 'class-validator';
-import { debug } from 'console';
 import { Model } from 'mongoose';
 import { Load } from 'src/carrier/schemas/Load.schema';
 import {
@@ -34,22 +33,10 @@ export class DiagramService {
   }
 
   async getLoadOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
-    let load: Load[] = await this.loadModel.find({
-      where: {
-        carrierId: {
-          $in: filter.ids,
-        },
-        timestamp: {
-          $gt: filter.start,
-          $lt: filter.end,
-        },
-      },
-    });
+    let load: Load[] = await this.loadModel.find();
 
-    // $in doesn't seem to work
     load = load.filter((l) => filter.ids.includes(l.carrierId));
 
-    // $gt and $lt don't seem to work
     load = load.filter(
       (l) => l.timestamp >= filter.start && l.timestamp <= filter.end,
     );
