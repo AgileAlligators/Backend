@@ -38,7 +38,7 @@ export class DiagramService {
     load = load.filter((l) => filter.ids.includes(l.carrierId));
 
     load = load.filter(
-      (l) => l.timestamp >= filter.start && l.timestamp <= filter.end,
+      (l) => (!filter.start || l.timestamp >= filter.start) && (!filter.end || l.timestamp <= filter.end)
     );
 
     const diagrams: LineDiagramDto[] = load
