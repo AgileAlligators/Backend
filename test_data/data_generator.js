@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 
-const TIME_DIFF = 6000;
+const TIME_DIFF = 6000000;
 const LOAD_COUNT_PER_CARRIER = 100;
 
 const CARRIER_IDS = [
@@ -22,6 +22,8 @@ const CARRIER_IDS = [
 ];
 
 let loads = [];
+let idles = [];
+let locations = []
 
 const now = Date.now();
 
@@ -32,7 +34,19 @@ for (const id of CARRIER_IDS) {
       timestamp: now + index * TIME_DIFF,
       load: Math.random(),
     });
+    idles.push({
+      carrierId: id,
+      timestamp: now + index * TIME_DIFF,
+      idle: Math.random(),
+    });
+    locations.push({
+      carrierId: id,
+      timestamp: now + index * TIME_DIFF - Math.floor(Math.random() * 1000 * 1000),
+      location: { type: 'Point', coordinates: [Math.random() * 360 - 180, Math.random() * 360 - 180] },
+    });
   }
 }
 
 writeFileSync('./test_data/loads.json', JSON.stringify(loads), 'utf8');
+writeFileSync('./test_data/idles.json', JSON.stringify(idles), 'utf8');
+writeFileSync('./test_data/locations.json', JSON.stringify(locations), 'utf8');
