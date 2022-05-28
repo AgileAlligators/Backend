@@ -52,7 +52,7 @@ export class HotspotService {
     const hotspots: HotspotDto[] = load
       .map((l) => {
         const locationAtPointOfTime = locations.find((location) => location.timestamp <= l.timestamp);
-        return { carrierId: l.carrierId, dataTuples: [[l.timestamp, locationAtPointOfTime, l.load]] };
+        return { carrierId: l.carrierId, dataTuples: [[l.timestamp, locationAtPointOfTime.location.coordinates, l.load]] };
       })
       .reduce((hotspots: HotspotDto[], load: HotspotDto) => {
         const hotspot = hotspots.find((h) => h.carrierId == load.carrierId);
@@ -80,7 +80,7 @@ export class HotspotService {
     const hotspots: HotspotDto[] = idle
       .map((i) => {
         const locationAtPointOfTime = locations.find((location) => location.timestamp <= i.timestamp);
-        return { carrierId: i.carrierId, dataTuples: [[i.timestamp, locationAtPointOfTime, i.idle]] };
+        return { carrierId: i.carrierId, dataTuples: [[i.timestamp, locationAtPointOfTime.location.coordinates, i.idle]] };
       })
       .reduce((hotspots: HotspotDto[], idle: HotspotDto) => {
         const hotspot = hotspots.find((h) => h.carrierId == idle.carrierId);
