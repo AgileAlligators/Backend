@@ -25,6 +25,9 @@ export const InvalidCarrier = (carrierId: string) =>
 
 export const InvalidDiagrammRequest = (diagrammRequest: string) =>
   new BadRequestException(MongoIdTypes.DIAGRAM, diagrammRequest);
+
+export const InvalidHotspotRequest = (hotspotRequest: string) =>
+  new BadRequestException(MongoIdTypes.HOTSPOT, hotspotRequest);
   
 export const InvalidLoad = (loadId: string) =>
   new ItemNotFoundException(MongoIdTypes.LOAD, loadId);

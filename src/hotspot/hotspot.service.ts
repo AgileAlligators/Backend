@@ -8,11 +8,12 @@ import { Location } from 'src/carrier/schemas/Location.schema';
 import {
   InvalidCarrier,
   InvalidDiagrammRequest,
+  InvalidHotspotRequest,
 } from 'src/_common/exceptions/ItemNotFound.exception';
 import { HotspotFilterDto } from './dto/hotspot-filter.dto';
 import { HotspotDto } from './dto/hotspot.dto';
 
-const DATA_REQUEST_TYPES = ['load, idle'];
+const DATA_REQUEST_TYPES = ['load', 'idle'];
 
 @Injectable()
 export class HotspotService {
@@ -28,7 +29,7 @@ export class HotspotService {
     }
 
     if (!DATA_REQUEST_TYPES.includes(filter.dataRequest))
-      throw InvalidDiagrammRequest(filter.dataRequest);
+      throw InvalidHotspotRequest(filter.dataRequest);
 
     switch (filter.dataRequest) {
       case 'load':

@@ -5,6 +5,7 @@ enum MongoIdTypes {
   CARRIER = 'Ein Ladungsträger',
   ACCOUNT = 'Ein Account',
   DIAGRAM = 'Ein Diagramm',
+  HOTSPOT = 'Ein Hotspot',
   LOCATION = 'Ein Standort',
   LOAD = 'Eine Beladungsinformation',
 }
