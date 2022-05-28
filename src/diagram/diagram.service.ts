@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isMongoId } from 'class-validator';
 import { Model } from 'mongoose';
+import { Idle } from 'src/carrier/schemas/Idle.schema';
 import { Load } from 'src/carrier/schemas/Load.schema';
 import {
   InvalidCarrier,
@@ -16,6 +17,7 @@ const DATA_REQUEST_TYPES = ['loadOverTime'];
 export class DiagramService {
   constructor(
     @InjectModel(Load.name) private readonly loadModel: Model<Load>,
+    @InjectModel(Idle.name) private readonly idleModel: Model<Idle>,
   ) {}
 
   async getLineDiagram(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
@@ -29,6 +31,8 @@ export class DiagramService {
     switch (filter.dataRequest) {
       case 'loadOverTime':
         return await this.getLoadOverTime(filter);
+      case 'idleOverTime':
+        return await this.getIdleOverTime(filter);
     }
   }
 
@@ -51,6 +55,32 @@ export class DiagramService {
           diagrams.push(load);
         } else {
           diagram.dataPairs.push(load.dataPairs[0]);
+        }
+        return diagrams;
+      }, []);
+
+    return diagrams;
+  }
+
+  async getIdleOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
+    let idle: Idle[] = await this.idleModel.find();
+
+    idle = idle.filter((i) => filter.ids.includes(i.carrierId));
+
+    idle = idle.filter(
+      (i) => (!filter.start || i.timestamp >= filter.start) && (!filter.end || i.timestamp <= filter.end)
+    );
+
+    const diagrams: LineDiagramDto[] = idle
+      .map((i) => {
+        return { carrierId: i.carrierId, dataPairs: [[i.timestamp, i.idle]] };
+      })
+      .reduce((diagrams: LineDiagramDto[], idle: LineDiagramDto) => {
+        const diagram = diagrams.find((d) => d.carrierId == idle.carrierId);
+        if (!diagram) {
+          diagrams.push(idle);
+        } else {
+          diagram.dataPairs.push(idle.dataPairs[0]);
         }
         return diagrams;
       }, []);
