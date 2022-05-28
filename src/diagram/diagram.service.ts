@@ -11,7 +11,7 @@ import {
 import { DiagramFilterDto } from './dto/diagramm-filter.dto';
 import { LineDiagramDto } from './dto/line-diagram.dto';
 
-const DATA_REQUEST_TYPES = ['loadOverTime'];
+const DATA_REQUEST_TYPES = ['loadOverTime', 'idleOverTime'];
 
 @Injectable()
 export class DiagramService {

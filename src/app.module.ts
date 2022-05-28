@@ -6,6 +6,7 @@ import { CarrierModule } from './carrier/carrier.module';
 import { AccountModule } from './account/account.module';
 import { AnalyzerModule } from './analyzer/analyzer.module';
 import { DiagramModule } from './diagram/diagram.module';
+import { HotspotModule } from './hotspot/hotspot.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DiagramModule } from './diagram/diagram.module';
     AccountModule,
     AnalyzerModule,
     DiagramModule,
+    HotspotModule
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })
