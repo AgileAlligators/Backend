@@ -57,6 +57,15 @@ export class CarrierService {
     };
   }
 
+  public async getUnique(
+    organisation: string,
+    field: string,
+  ): Promise<string[]> {
+    return this.carrierModel
+      .find({ _organisation: organisation })
+      .distinct(field);
+  }
+
   public async doesCarrierExist(
     organisation: string,
     carrierId: string,

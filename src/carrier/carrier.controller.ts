@@ -30,6 +30,30 @@ const LoadId = () => MongoId(MongoIdTypes.LOAD, 'loadId');
 export class CarrierController {
   constructor(private readonly carrierService: CarrierService) {}
 
+  @ApiResponse({ type: [String] })
+  @Get('customers')
+  async getUniqueCustomers(
+    @ROrganisation() organisation: string,
+  ): Promise<string[]> {
+    return this.carrierService.getUnique(organisation, 'customer');
+  }
+
+  @ApiResponse({ type: [String] })
+  @Get('orders')
+  async getUniqueOrders(
+    @ROrganisation() organisation: string,
+  ): Promise<string[]> {
+    return this.carrierService.getUnique(organisation, 'order');
+  }
+
+  @ApiResponse({ type: [String] })
+  @Get('types')
+  async getUniqueTypes(
+    @ROrganisation() organisation: string,
+  ): Promise<string[]> {
+    return this.carrierService.getUnique(organisation, 'type');
+  }
+
   @ApiResponse({ type: [Carrier] })
   @Post('search')
   async searchCarriers(
