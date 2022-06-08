@@ -1,26 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
+import { CarrierFilterDto } from 'src/carrier/dtos/carrier-filter.dto';
 
-export class HotspotFilterDto {
-  @ApiProperty({
-    description: 'Carrier ids',
-    example: '["123456", "234567"]',
-  })
-  @IsArray()
-  ids: string[];
-
-  @ApiProperty({
-    description: 'Type of data that should be aggregated into a hotspot map',
-    example: 'load',
-  })
-  @IsString()
-  dataRequest: string;
-
+export class HotspotFilterDto extends CarrierFilterDto{
   @ApiProperty({
     description: 'Start of requested time period',
     example: 1652394005,
   })
   @IsOptional()
+  @Min(0)
   @IsInt()
   start?: number;
 
@@ -29,6 +17,7 @@ export class HotspotFilterDto {
     example: 1654633109,
   })
   @IsOptional()
+  @Min(0)
   @IsInt()
   end?: number;
 }

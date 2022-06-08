@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { HotspotService } from './hotspot.service';
 import { HotspotController } from './hotspot.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { LoadDefinition } from 'src/carrier/schemas/Load.schema';
-import { IdleDefinition } from 'src/carrier/schemas/Idle.schema';
-import { LocationDefinition } from 'src/carrier/schemas/Location.schema';
+import { CarrierModule } from 'src/carrier/carrier.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([LoadDefinition]), MongooseModule.forFeature([IdleDefinition]), MongooseModule.forFeature([LocationDefinition])],
+  imports: [CarrierModule],
   controllers: [HotspotController],
   providers: [HotspotService],
   exports: [HotspotService],

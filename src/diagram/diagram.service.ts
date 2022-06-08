@@ -3,8 +3,6 @@ import { CarrierService } from 'src/carrier/carrier.service';
 import { DiagramFilterDto } from './dto/diagram-filter.dto';
 import { DiagramDto } from './dto/diagram.dto';
 
-const DATA_REQUEST_TYPES = ['loadOverTime', 'idleOverTime'];
-
 @Injectable()
 export class DiagramService {
   constructor(private readonly carrierService: CarrierService) {}
