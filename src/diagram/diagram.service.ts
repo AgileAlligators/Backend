@@ -16,10 +16,12 @@ export class DiagramService {
       filter,
     );
 
-    return this.reduceData(results
+    const reducedData = this.reduceData(results
       .map((l) => {
         return { name: l.carrierId, data: [{ x: l.timestamp, y: l.load}] };
       }));
+
+    return reducedData.length <= 10 ? reducedData : this.calculateAverage(reducedData);
   }
 
   async getIdleOverTime(
@@ -30,13 +32,16 @@ export class DiagramService {
       organisation,
       filter,
     );
-    return this.reduceData(results
+
+    const reducedData = this.reduceData(results
       .map((i) => {
         return { name: i.carrierId, data: [{ x: i.timestamp, y: i.idle}] };
       }));
+
+    return reducedData.length <= 10 ? reducedData : this.calculateAverage(reducedData);
   }
 
-  private reduceData(dataSets: DiagramDto[]) {
+  private reduceData(dataSets: DiagramDto[]): DiagramDto[] {
     return dataSets.reduce((diagrams: DiagramDto[], data: DiagramDto) => {
       const diagram = diagrams.find((d) => d.name == data.name);
       if (!diagram) {
@@ -46,5 +51,20 @@ export class DiagramService {
       }
       return diagrams;
     }, []);
+  }
+
+  private calculateAverage(dataSets: DiagramDto[]): DiagramDto[] {
+    return [dataSets.reduce((diagram: DiagramDto, data: DiagramDto) => {
+      for (const dataEntry of data.data) {
+        const entry = diagram.data.find((d) => d.x == dataEntry.x);
+        if (!entry) {
+          entry.y += dataEntry.y / dataSets.length;
+        } else {
+          diagram.data.push({ x: dataEntry.x, y: dataEntry.y / dataSets.length });
+        }
+      }
+
+      return diagram;
+    }, { name: 'average', data: []})];
   }
 }
