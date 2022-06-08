@@ -1,8 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ROrganisation } from 'src/account/decorators/account.decorator';
 import { Auth } from 'src/account/guards/perms.guard';
 import { DiagramService } from './diagram.service';
-import { DiagramFilterDto } from './dto/diagramm-filter.dto';
+import { DiagramFilterDto } from './dto/diagram-filter.dto';
 import { LineDiagramDto } from './dto/line-diagram.dto';
 
 @Auth()
@@ -13,7 +14,7 @@ export class DiagramController {
 
   @ApiOperation({ description: 'Create a line diagram with given filter' })
   @ApiResponse({
-    type: LineDiagramDto,
+    type: [LineDiagramDto],
     description: 'Returns the requested data for a line diagram',
   })
   @ApiBody({
@@ -21,7 +22,10 @@ export class DiagramController {
     required: true,
   })
   @Post('/line-diagram')
-  getLineDiagram(@Body() filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
-    return this.diagramService.getLineDiagram(filter);
+  getLineDiagram(
+    @Body() filter: DiagramFilterDto,
+    @ROrganisation() organisation: string,
+  ): Promise<LineDiagramDto[]> {
+    return this.diagramService.getLineDiagram(organisation, filter);
   }
 }

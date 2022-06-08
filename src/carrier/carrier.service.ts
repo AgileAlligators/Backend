@@ -57,6 +57,15 @@ export class CarrierService {
     };
   }
 
+  public async getUnique(
+    organisation: string,
+    field: string,
+  ): Promise<string[]> {
+    return this.carrierModel
+      .find({ _organisation: organisation })
+      .distinct(field);
+  }
+
   public async doesCarrierExist(
     organisation: string,
     carrierId: string,
@@ -143,7 +152,7 @@ export class CarrierService {
     organisation: string,
     dto: CarrierLoadFilterDto,
   ): Promise<SearchResult<Load>> {
-    const { timestamp_end, timestamp_start, skip, limit } = dto;
+    const { end, start, skip, limit } = dto;
     const { fq, qo } = this.getFilterOptions(organisation, {
       ...dto,
       skip: undefined,
@@ -157,9 +166,8 @@ export class CarrierService {
     const qoL: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqL: FilterQuery<Load> = { carrierId: { $in: ids } };
 
-    if (timestamp_start !== undefined)
-      fqL.timestamp = { $gte: timestamp_start };
-    if (timestamp_end !== undefined) fqL.timestamp = { $lte: timestamp_end };
+    if (start !== undefined) fqL.timestamp = { $gte: start };
+    if (end !== undefined) fqL.timestamp = { $lte: end };
 
     return {
       total: await this.loadModel.countDocuments(fqL),
@@ -226,7 +234,7 @@ export class CarrierService {
     organisation: string,
     dto: CarrierLocationFilterDto,
   ): Promise<SearchResult<Location>> {
-    const { timestamp_end, timestamp_start, near, skip, limit } = dto;
+    const { end, start, near, skip, limit } = dto;
     const { fq, qo } = this.getFilterOptions(organisation, {
       ...dto,
       skip: undefined,
@@ -240,9 +248,8 @@ export class CarrierService {
     const qoL: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqL: FilterQuery<Location> = { carrierId: { $in: ids } };
 
-    if (timestamp_start !== undefined)
-      fqL.timestamp = { $gte: timestamp_start };
-    if (timestamp_end !== undefined) fqL.timestamp = { $lte: timestamp_end };
+    if (start !== undefined) fqL.timestamp = { $gte: start };
+    if (end !== undefined) fqL.timestamp = { $lte: end };
     if (near !== undefined) {
       fqL.location = {
         $near: {
@@ -286,7 +293,7 @@ export class CarrierService {
     organisation: string,
     dto: CarrierIdleFilterDto,
   ): Promise<SearchResult<Idle>> {
-    const { timestamp_end, timestamp_start, skip, limit } = dto;
+    const { end, start, skip, limit } = dto;
     const { fq, qo } = this.getFilterOptions(organisation, {
       ...dto,
       skip: undefined,
@@ -300,9 +307,8 @@ export class CarrierService {
     const qoI: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqI: FilterQuery<Location> = { carrierId: { $in: ids } };
 
-    if (timestamp_start !== undefined)
-      fqI.timestamp = { $gte: timestamp_start };
-    if (timestamp_end !== undefined) fqI.timestamp = { $lte: timestamp_end };
+    if (start !== undefined) fqI.timestamp = { $gte: start };
+    if (end !== undefined) fqI.timestamp = { $lte: end };
 
     return {
       total: await this.idleModel.countDocuments(fqI),

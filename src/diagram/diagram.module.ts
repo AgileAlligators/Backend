@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { DiagramService } from './diagram.service';
+import { CarrierModule } from 'src/carrier/carrier.module';
 import { DiagramController } from './diagram.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { LoadDefinition } from 'src/carrier/schemas/Load.schema';
-import { IdleDefinition } from 'src/carrier/schemas/Idle.schema';
+import { DiagramService } from './diagram.service';
 
 @Module({
-  imports: [MongooseModule.forFeature([LoadDefinition]), MongooseModule.forFeature([IdleDefinition])],
+  imports: [CarrierModule],
   controllers: [DiagramController],
   providers: [DiagramService],
   exports: [DiagramService],

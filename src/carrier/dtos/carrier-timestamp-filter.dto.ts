@@ -13,7 +13,7 @@ export abstract class CarrierTimestampFilterDto extends CarrierFilterDto {
   @IsOptional()
   @Min(0, { message: 'Der Startzeitpunkt muss größer als 0 sein' })
   @IsInt({ message: 'Der Startzeitpunkt muss eine Zahl sein' })
-  timestamp_start?: number;
+  start?: number;
 
   @ApiProperty({
     type: Number,
@@ -25,5 +25,5 @@ export abstract class CarrierTimestampFilterDto extends CarrierFilterDto {
   @IsOptional()
   @Min(0, { message: 'Der Startzeitpunkt muss größer als 0 sein' })
   @IsInt({ message: 'Der Startzeitpunkt muss eine Zahl sein' })
-  timestamp_end?: number;
+  end?: number;
 }
