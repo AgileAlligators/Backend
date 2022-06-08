@@ -1,51 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { isMongoId } from 'class-validator';
-import { Model } from 'mongoose';
-import { Idle } from 'src/carrier/schemas/Idle.schema';
-import { Load } from 'src/carrier/schemas/Load.schema';
-import {
-  InvalidCarrier,
-  InvalidDiagrammRequest,
-} from 'src/_common/exceptions/ItemNotFound.exception';
-import { DiagramFilterDto } from './dto/diagramm-filter.dto';
+import { CarrierService } from 'src/carrier/carrier.service';
+import { DiagramFilterDto } from './dto/diagram-filter.dto';
 import { LineDiagramDto } from './dto/line-diagram.dto';
 
 const DATA_REQUEST_TYPES = ['loadOverTime', 'idleOverTime'];
 
 @Injectable()
 export class DiagramService {
-  constructor(
-    @InjectModel(Load.name) private readonly loadModel: Model<Load>,
-    @InjectModel(Idle.name) private readonly idleModel: Model<Idle>,
-  ) {}
+  constructor(private readonly carrierService: CarrierService) {}
 
-  async getLineDiagram(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
-    for (const id of filter.ids) {
-      if (!isMongoId(id)) throw InvalidCarrier(id);
-    }
-
-    if (!DATA_REQUEST_TYPES.includes(filter.dataRequest))
-      throw InvalidDiagrammRequest(filter.dataRequest);
-
-    switch (filter.dataRequest) {
-      case 'loadOverTime':
-        return await this.getLoadOverTime(filter);
-      case 'idleOverTime':
-        return await this.getIdleOverTime(filter);
-    }
+  async getLineDiagram(
+    organisation: string,
+    filter: DiagramFilterDto,
+  ): Promise<LineDiagramDto[]> {
+    // switch (filter.dataRequest) {
+    //   case 'loadOverTime':
+    //     return await this.getLoadOverTime(filter);
+    //   case 'idleOverTime':
+    //     return await this.getIdleOverTime(filter);
+    // }
+    return this.getLoadOverTime(organisation, filter);
   }
 
-  async getLoadOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
-    let load: Load[] = await this.loadModel.find();
-
-    load = load.filter((l) => filter.ids.includes(l.carrierId));
-
-    load = load.filter(
-      (l) => (!filter.start || l.timestamp >= filter.start) && (!filter.end || l.timestamp <= filter.end)
+  async getLoadOverTime(
+    organisation: string,
+    filter: DiagramFilterDto,
+  ): Promise<LineDiagramDto[]> {
+    const { results } = await this.carrierService.searchLoad(
+      organisation,
+      filter,
     );
 
-    const diagrams: LineDiagramDto[] = load
+    return results
       .map((l) => {
         return { carrierId: l.carrierId, dataPairs: [[l.timestamp, l.load]] };
       })
@@ -58,20 +44,17 @@ export class DiagramService {
         }
         return diagrams;
       }, []);
-
-    return diagrams;
   }
 
-  async getIdleOverTime(filter: DiagramFilterDto): Promise<LineDiagramDto[]> {
-    let idle: Idle[] = await this.idleModel.find();
-
-    idle = idle.filter((i) => filter.ids.includes(i.carrierId));
-
-    idle = idle.filter(
-      (i) => (!filter.start || i.timestamp >= filter.start) && (!filter.end || i.timestamp <= filter.end)
+  async getIdleOverTime(
+    organisation: string,
+    filter: DiagramFilterDto,
+  ): Promise<LineDiagramDto[]> {
+    const { results } = await this.carrierService.searchIdle(
+      organisation,
+      filter,
     );
-
-    const diagrams: LineDiagramDto[] = idle
+    return results
       .map((i) => {
         return { carrierId: i.carrierId, dataPairs: [[i.timestamp, i.idle]] };
       })
@@ -84,7 +67,5 @@ export class DiagramService {
         }
         return diagrams;
       }, []);
-
-    return diagrams;
   }
 }
