@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CarrierService } from 'src/carrier/carrier.service';
 import { DiagramFilterDto } from './dto/diagram-filter.dto';
-import { DiagramDto } from './dto/line-diagram.dto';
+import { DiagramDto } from './dto/diagram.dto';
 
 const DATA_REQUEST_TYPES = ['loadOverTime', 'idleOverTime'];
 
