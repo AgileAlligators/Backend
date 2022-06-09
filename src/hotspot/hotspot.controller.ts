@@ -21,10 +21,10 @@ export class HotspotController {
     type: HotspotFilterDto,
     required: true,
   })
-  @Post('/hotspot/load')
+  @Post('load')
   getLoadHotspotMap(
     @Body() filter: HotspotFilterDto,
-    @ROrganisation() organisation: string
+    @ROrganisation() organisation: string,
   ): Promise<HotspotDto[]> {
     return this.hotspotService.getLoadMap(organisation, filter);
   }
@@ -38,10 +38,10 @@ export class HotspotController {
     type: HotspotFilterDto,
     required: true,
   })
-  @Post('/hotspot/idle')
+  @Post('idle')
   getIdleHotspotMap(
     @Body() filter: HotspotFilterDto,
-    @ROrganisation() organisation: string
+    @ROrganisation() organisation: string,
   ): Promise<HotspotDto[]> {
     return this.hotspotService.getIdleMap(organisation, filter);
   }

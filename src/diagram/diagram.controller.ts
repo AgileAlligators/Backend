@@ -17,12 +17,9 @@ export class DiagramController {
     type: [DiagramDto],
     description: 'Returns the requested data for a load diagram',
   })
-  @ApiBody({
-    type: DiagramFilterDto,
-    required: true,
-  })
-  @Post('/diagram/load')
-  getLoadDiagram(
+  @ApiBody({ type: DiagramFilterDto, required: true })
+  @Post('load')
+  async getLoadDiagram(
     @Body() filter: DiagramFilterDto,
     @ROrganisation() organisation: string,
   ): Promise<DiagramDto[]> {
@@ -34,12 +31,9 @@ export class DiagramController {
     type: [DiagramDto],
     description: 'Returns the requested data for a idle diagram',
   })
-  @ApiBody({
-    type: DiagramFilterDto,
-    required: true,
-  })
-  @Post('/diagram/idle')
-  getIdleDiagram(
+  @ApiBody({ type: DiagramFilterDto, required: true })
+  @Post('idle')
+  async getIdleDiagram(
     @Body() filter: DiagramFilterDto,
     @ROrganisation() organisation: string,
   ): Promise<DiagramDto[]> {

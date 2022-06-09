@@ -7,7 +7,7 @@ import { DiagramDto } from './dto/diagram.dto';
 export class DiagramService {
   constructor(private readonly carrierService: CarrierService) {}
 
-  async getLoadOverTime(
+  public async getLoadOverTime(
     organisation: string,
     filter: DiagramFilterDto,
   ): Promise<DiagramDto[]> {
@@ -16,15 +16,18 @@ export class DiagramService {
       filter,
     );
 
-    const reducedData = this.reduceData(results
-      .map((l) => {
-        return { name: l.carrierId, data: [{ x: l.timestamp, y: l.load}] };
-      }));
+    const reducedData = this.reduceData(
+      results.map((l) => {
+        return { name: l.carrierId, data: [{ x: l.timestamp, y: l.load }] };
+      }),
+    );
 
-    return reducedData.length <= 10 ? reducedData : this.calculateAverage(reducedData);
+    return reducedData.length <= 10
+      ? reducedData
+      : this.calculateAverage(reducedData);
   }
 
-  async getIdleOverTime(
+  public async getIdleOverTime(
     organisation: string,
     filter: DiagramFilterDto,
   ): Promise<DiagramDto[]> {
@@ -33,12 +36,15 @@ export class DiagramService {
       filter,
     );
 
-    const reducedData = this.reduceData(results
-      .map((i) => {
-        return { name: i.carrierId, data: [{ x: i.timestamp, y: i.idle}] };
-      }));
+    const reducedData = this.reduceData(
+      results.map((i) => {
+        return { name: i.carrierId, data: [{ x: i.timestamp, y: i.idle }] };
+      }),
+    );
 
-    return reducedData.length <= 10 ? reducedData : this.calculateAverage(reducedData);
+    return reducedData.length <= 10
+      ? reducedData
+      : this.calculateAverage(reducedData);
   }
 
   private reduceData(dataSets: DiagramDto[]): DiagramDto[] {
@@ -54,17 +60,25 @@ export class DiagramService {
   }
 
   private calculateAverage(dataSets: DiagramDto[]): DiagramDto[] {
-    return [dataSets.reduce((diagram: DiagramDto, data: DiagramDto) => {
-      for (const dataEntry of data.data) {
-        const entry = diagram.data.find((d) => d.x == dataEntry.x);
-        if (!entry) {
-          entry.y += dataEntry.y / dataSets.length;
-        } else {
-          diagram.data.push({ x: dataEntry.x, y: dataEntry.y / dataSets.length });
-        }
-      }
+    return [
+      dataSets.reduce(
+        (diagram: DiagramDto, data: DiagramDto) => {
+          for (const dataEntry of data.data) {
+            const entry = diagram.data.find((d) => d.x == dataEntry.x);
+            if (!entry) {
+              entry.y += dataEntry.y / dataSets.length;
+            } else {
+              diagram.data.push({
+                x: dataEntry.x,
+                y: dataEntry.y / dataSets.length,
+              });
+            }
+          }
 
-      return diagram;
-    }, { name: 'average', data: []})];
+          return diagram;
+        },
+        { name: 'average', data: [] },
+      ),
+    ];
   }
 }
