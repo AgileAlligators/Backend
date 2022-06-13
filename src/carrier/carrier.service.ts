@@ -166,8 +166,10 @@ export class CarrierService {
     const qoL: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqL: FilterQuery<Load> = { carrierId: { $in: ids } };
 
-    if (start !== undefined) fqL.timestamp = { $gte: start };
-    if (end !== undefined) fqL.timestamp = { $lte: end };
+    if (start !== undefined && end !== undefined)
+      fqL.timestamp = { $gte: start, $lte: end };
+    else if (start !== undefined) fqL.timestamp = { $gte: start };
+    else if (end !== undefined) fqL.timestamp = { $lte: end };
 
     return {
       total: await this.loadModel.countDocuments(fqL),
@@ -248,8 +250,11 @@ export class CarrierService {
     const qoL: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqL: FilterQuery<Location> = { carrierId: { $in: ids } };
 
-    if (start !== undefined) fqL.timestamp = { $gte: start };
-    if (end !== undefined) fqL.timestamp = { $lte: end };
+    if (start !== undefined && end !== undefined)
+      fqL.timestamp = { $gte: start, $lte: end };
+    else if (start !== undefined) fqL.timestamp = { $gte: start };
+    else if (end !== undefined) fqL.timestamp = { $lte: end };
+
     if (near !== undefined) {
       fqL.location = {
         $near: {
@@ -307,8 +312,10 @@ export class CarrierService {
     const qoI: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fqI: FilterQuery<Location> = { carrierId: { $in: ids } };
 
-    if (start !== undefined) fqI.timestamp = { $gte: start };
-    if (end !== undefined) fqI.timestamp = { $lte: end };
+    if (start !== undefined && end !== undefined)
+      fqI.timestamp = { $gte: start, $lte: end };
+    else if (start !== undefined) fqI.timestamp = { $gte: start };
+    else if (end !== undefined) fqI.timestamp = { $lte: end };
 
     return {
       total: await this.idleModel.countDocuments(fqI),

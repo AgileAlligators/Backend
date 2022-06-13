@@ -28,7 +28,7 @@ export const InvalidDiagrammRequest = (diagrammRequest: string) =>
 
 export const InvalidHotspotRequest = (hotspotRequest: string) =>
   new BadRequestException(MongoIdTypes.HOTSPOT, hotspotRequest);
-  
+
 export const InvalidLoad = (loadId: string) =>
   new ItemNotFoundException(MongoIdTypes.LOAD, loadId);
 
