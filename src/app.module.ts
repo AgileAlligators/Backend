@@ -7,6 +7,7 @@ import { AccountModule } from './account/account.module';
 import { AnalyzerModule } from './analyzer/analyzer.module';
 import { DiagramModule } from './diagram/diagram.module';
 import { HotspotModule } from './hotspot/hotspot.module';
+import { DataGenerationModule } from './data-generation/data-generation.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { HotspotModule } from './hotspot/hotspot.module';
     AccountModule,
     AnalyzerModule,
     DiagramModule,
-    HotspotModule
+    HotspotModule,
+    DataGenerationModule
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })
