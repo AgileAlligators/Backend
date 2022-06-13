@@ -24,7 +24,7 @@ import { HotspotModule } from './hotspot/hotspot.module';
     AccountModule,
     AnalyzerModule,
     DiagramModule,
-    HotspotModule
+    HotspotModule,
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })
