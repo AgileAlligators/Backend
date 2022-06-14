@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 import {
   ApiCarrierComponent,
   ApiCarrierCustomer,
@@ -8,10 +8,11 @@ import {
 } from '../carrier.api';
 
 export class CreateCarrierDto {
-  @ApiCarrierComponent({ minLength: 1 })
+  @ApiCarrierComponent({ minLength: 1, required: false })
+  @IsOptional()
   @MinLength(1, { message: 'Das Bauteil muss mindestens 1 Zeichen lang sein' })
   @IsString({ message: 'Das Bauteil muss ein String sein' })
-  component: string;
+  component?: string;
 
   @ApiCarrierType({ minLength: 1 })
   @MinLength(1, {

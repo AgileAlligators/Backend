@@ -34,9 +34,9 @@ export class Carrier extends Document {
   @Prop({ required: true })
   order: string;
 
-  @ApiCarrierComponent({ required: true })
-  @Prop({ required: true })
-  component: string;
+  @ApiCarrierComponent({ required: false })
+  @Prop({ required: false })
+  component?: string;
 }
 
 const CarrierSchema = SchemaFactory.createForClass(Carrier);
