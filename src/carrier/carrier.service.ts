@@ -7,19 +7,23 @@ import {
   InvalidCarrier,
   InvalidLoad,
   InvalidLocation,
+  InvalidVibration,
 } from 'src/_common/exceptions/ItemNotFound.exception';
 import { SearchResult } from '../_common/search/SearchResult.dto';
 import { CarrierFilterDto } from './dtos/carrier-filter.dto';
 import { CarrierIdleFilterDto } from './dtos/carrier-idle-filter.dto';
 import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
 import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
+import { CarrierVibrationFilterDto } from './dtos/carrier-vibration-filter.dto';
 import { CreateCarrierDto, UpdateCarrierDto } from './dtos/create-carrier.dto';
 import { StoreLoadDto } from './dtos/store-load.dto';
 import { StoreLocationDto } from './dtos/store-location.dto';
+import { StoreVibrationDto } from './dtos/store-vibration.dto';
 import { Carrier } from './schemas/Carrier.schema';
 import { Idle } from './schemas/Idle.schema';
 import { Load } from './schemas/Load.schema';
 import { Location } from './schemas/Location.schema';
+import { Vibration } from './schemas/Vibration.schema';
 
 @Injectable()
 export class CarrierService {
@@ -28,6 +32,8 @@ export class CarrierService {
     @InjectModel(Location.name) private readonly locationModel: Model<Location>,
     @InjectModel(Load.name) private readonly loadModel: Model<Load>,
     @InjectModel(Idle.name) private readonly idleModel: Model<Idle>,
+    @InjectModel(Vibration.name)
+    private readonly vibrationModel: Model<Vibration>,
   ) {}
 
   private getFilterOptions(
@@ -323,5 +329,66 @@ export class CarrierService {
       total: await this.idleModel.countDocuments(fqI),
       results: await this.idleModel.find(fqI, undefined, qoI),
     };
+  }
+
+  // ========================================
+  // Load
+  // ========================================
+
+  public async storeVibration(
+    organisation: string,
+    carrierId: string,
+    dto: StoreVibrationDto,
+  ): Promise<Vibration> {
+    if (!(await this.doesCarrierExist(organisation, carrierId)))
+      throw InvalidCarrier(carrierId);
+
+    return this.vibrationModel.create({ carrierId, ...dto });
+  }
+
+  public async searchVibration(
+    organisation: string,
+    dto: CarrierVibrationFilterDto,
+  ): Promise<SearchResult<Vibration>> {
+    const { end, start, skip, limit } = dto;
+    const { fq, qo } = this.getFilterOptions(organisation, {
+      ...dto,
+      skip: undefined,
+      limit: undefined,
+    });
+
+    const ids = await this.carrierModel
+      .find(fq, undefined, qo)
+      .distinct<string>('_id');
+
+    const qoL: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
+    const fqL: FilterQuery<Vibration> = { carrierId: { $in: ids } };
+
+    if (start !== undefined && end !== undefined)
+      fqL.timestamp = { $gte: start, $lte: end };
+    else if (start !== undefined) fqL.timestamp = { $gte: start };
+    else if (end !== undefined) fqL.timestamp = { $lte: end };
+
+    return {
+      total: await this.vibrationModel.countDocuments(fqL),
+      results: await this.vibrationModel.find(fqL, undefined, qoL),
+    };
+  }
+
+  public async deleteVibration(
+    organisation: string,
+    carrierId: string,
+    vibrationId: string,
+  ): Promise<boolean> {
+    if (!(await this.doesCarrierExist(organisation, carrierId)))
+      throw InvalidCarrier(carrierId);
+
+    const res = await this.vibrationModel.deleteOne({
+      _id: vibrationId,
+      carrierId,
+    });
+
+    if (res.deletedCount === 0) throw InvalidVibration(vibrationId);
+    return true;
   }
 }

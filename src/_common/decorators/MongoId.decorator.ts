@@ -8,6 +8,7 @@ enum MongoIdTypes {
   HOTSPOT = 'Ein Hotspot',
   LOCATION = 'Ein Standort',
   LOAD = 'Eine Beladungsinformation',
+  VIBRATION = 'Eine Erschütterung',
 }
 
 const MongoId = (type: MongoIdTypes, param = 'id') =>

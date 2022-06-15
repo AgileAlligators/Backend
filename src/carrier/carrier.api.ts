@@ -69,3 +69,13 @@ export const ApiCarrierLoad = (options?: ApiPropertyOptions) =>
     required: true,
     ...options,
   });
+
+export const ApiCarrierVibration = (options?: ApiPropertyOptions) =>
+  ApiProperty({
+    type: Number,
+    minimum: 0,
+    description: 'Die erkannte Erschütterung des Ladungsträgers',
+    example: 2,
+    required: true,
+    ...options,
+  });

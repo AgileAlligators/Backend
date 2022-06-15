@@ -8,6 +8,7 @@ import { AnalyzerModule } from './analyzer/analyzer.module';
 import { DiagramModule } from './diagram/diagram.module';
 import { HotspotModule } from './hotspot/hotspot.module';
 import { DataGenerationModule } from './data-generation/data-generation.module';
+import { StreamModule } from './stream/stream.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { DataGenerationModule } from './data-generation/data-generation.module';
     AnalyzerModule,
     DiagramModule,
     HotspotModule,
-    DataGenerationModule
+    DataGenerationModule,
+    StreamModule
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })

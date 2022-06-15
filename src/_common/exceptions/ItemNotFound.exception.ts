@@ -34,3 +34,6 @@ export const InvalidLoad = (loadId: string) =>
 
 export const InvalidLocation = (locationId: string) =>
   new ItemNotFoundException(MongoIdTypes.LOCATION, locationId);
+
+export const InvalidVibration = (vibrationId: string) =>
+  new ItemNotFoundException(MongoIdTypes.VIBRATION, vibrationId);

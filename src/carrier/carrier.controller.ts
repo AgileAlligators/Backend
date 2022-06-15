@@ -9,20 +9,10 @@ import {
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierService } from './carrier.service';
 import { CarrierFilterDto } from './dtos/carrier-filter.dto';
-import { CarrierIdleFilterDto } from './dtos/carrier-idle-filter.dto';
-import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
-import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
 import { CreateCarrierDto, UpdateCarrierDto } from './dtos/create-carrier.dto';
-import { StoreLoadDto } from './dtos/store-load.dto';
-import { StoreLocationDto } from './dtos/store-location.dto';
 import { Carrier } from './schemas/Carrier.schema';
-import { Idle } from './schemas/Idle.schema';
-import { Load } from './schemas/Load.schema';
-import { Location } from './schemas/Location.schema';
 
 const CarrierId = () => MongoId(MongoIdTypes.CARRIER, 'carrierId');
-const LocationId = () => MongoId(MongoIdTypes.LOCATION, 'locationId');
-const LoadId = () => MongoId(MongoIdTypes.LOAD, 'loadId');
 
 @Auth()
 @ApiTags('Carrier')
@@ -109,80 +99,5 @@ export class CarrierController {
     @CarrierId() carrierId: string,
   ): Promise<boolean> {
     return this.carrierService.delete(organisation, carrierId);
-  }
-
-  @Perms('carrier.load.create')
-  @ApiResponse({ type: Load })
-  @Post(':carrierId/load')
-  async storeLoad(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @Body() dto: StoreLoadDto,
-  ): Promise<Load> {
-    return this.carrierService.storeLoad(organisation, carrierId, dto);
-  }
-
-  @ApiResponse({ type: [Load] })
-  @Post('search/load')
-  async searchLoad(
-    @ROrganisation() organisation: string,
-    @Body() dto: CarrierLoadFilterDto,
-  ): Promise<SearchResult<Load>> {
-    return this.carrierService.searchLoad(organisation, dto);
-  }
-
-  @Perms('carrier.load.delete')
-  @ApiResponse({ type: Boolean })
-  @Delete(':carrierId/load/:loadId')
-  async deleteLoad(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @LoadId() loadId: string,
-  ): Promise<boolean> {
-    return this.carrierService.deleteLoad(organisation, carrierId, loadId);
-  }
-
-  @Perms('carrier.location.create')
-  @ApiResponse({ type: Location })
-  @Post(':carrierId/location')
-  async storeLocation(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @Body() dto: StoreLocationDto,
-  ): Promise<Location> {
-    return this.carrierService.storeLocation(organisation, carrierId, dto);
-  }
-
-  @ApiResponse({ type: [Location] })
-  @Post(':carrierId/location/search')
-  async searchLocation(
-    @ROrganisation() organisation: string,
-    @Body() dto: CarrierLocationFilterDto,
-  ): Promise<SearchResult<Location>> {
-    return this.carrierService.searchLocation(organisation, dto);
-  }
-
-  @Perms('carrier.location.delete')
-  @ApiResponse({ type: Boolean })
-  @Delete(':carrierId/location/:locationId')
-  async deleteLocation(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @LocationId() locationId: string,
-  ): Promise<boolean> {
-    return this.carrierService.deleteLocation(
-      organisation,
-      carrierId,
-      locationId,
-    );
-  }
-
-  @ApiResponse({ type: [Idle] })
-  @Post(':carrierId/idle/search')
-  async searchIdle(
-    @ROrganisation() organisation: string,
-    @Body() dto: CarrierIdleFilterDto,
-  ): Promise<SearchResult<Idle>> {
-    return this.carrierService.searchIdle(organisation, dto);
   }
 }
