@@ -8,7 +8,7 @@ export class DataGenerationService {
   constructor(private readonly carrierService: CarrierService) {}
 
   readonly ORGANISATION = 'Porsche';
-  readonly STARTING_TIME = 1655244000;
+  readonly STARTING_TIME = 1655244000; // 14.06.2022, 00:00:00
   readonly TIME_DIFF = 60 * 60 * 1000;
   readonly DATA_POINT_COUNT = 24 * 7 * 4;
   readonly PATH_LENGTH = 7;
