@@ -93,7 +93,7 @@ export class DataGenerationService {
         if (!!entry) {
           entry.push(carrier);
         } else {
-          map[carrier.order] = [carrier];
+          map.set(carrier.order, [carrier]);
         }
         return map;
       },
@@ -103,12 +103,7 @@ export class DataGenerationService {
     for (const order of carriersGroupedByOrder.values()) {
       const orderPath = this.PATHS[randomInt(0, this.PATHS.length)];
       const pathDuration = 24 * randomInt(1, 5);
-      const pathCyclesCount =
-        Math.floor(this.DATA_POINT_COUNT / pathDuration) +
-          (this.DATA_POINT_COUNT % pathDuration) >
-        0
-          ? 1
-          : 0;
+      const pathCyclesCount = Math.ceil(this.DATA_POINT_COUNT / pathDuration);
       const stationDuration = [
         1 + randomInt(0, 3) * pathDuration,
         4 + randomInt(0, 3) * pathDuration,
@@ -121,7 +116,7 @@ export class DataGenerationService {
       const stationLoad = [1, 0, 0, 0, 0, 0, 0];
 
       for (let index = 1; index < this.PATH_LENGTH - 1; index++) {
-        const newLoad = stationLoad[index - 1] - (Math.random() * 0.2 + 0.1);
+        const newLoad = stationLoad[index - 1] - (Math.round(Math.random() * 2) * 0.1 + 0.1);
         stationLoad[index] = newLoad > 0 ? newLoad : 0;
       }
 
@@ -133,6 +128,7 @@ export class DataGenerationService {
             if (hour >= stationDuration[station]) {
               station++;
             }
+
             await this.carrierService.storeLocation(
               this.ORGANISATION,
               carrier.id,
@@ -151,12 +147,13 @@ export class DataGenerationService {
         }
       }
     }
+    console.log('************************** finished writing data **************************');
   }
 
   private async generateCarriers(): Promise<Carrier[]> {
-    for (const customer of this.CUSTOMERS) {
-      let orderCount = 0;
-      for (const type of this.TYPES) {
+    let orderCount = 0;
+    for (const type of this.TYPES) {
+      for (const customer of this.CUSTOMERS) {
         for (let index = 0; index < this.CARRIERS_PER_ORDER; index++) {
           await this.carrierService.create(this.ORGANISATION, {
             customer: customer,
