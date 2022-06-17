@@ -8,7 +8,7 @@ export class DataGenerationService {
   constructor(private readonly carrierService: CarrierService) {}
 
   readonly ORGANISATION = 'Porsche';
-  readonly STARTING_TIME = 1655244000; // 14.06.2022, 00:00:00
+  readonly STARTING_TIME = 1655244000000; // 14.06.2022, 00:00:00
   readonly TIME_DIFF = 60 * 60 * 1000;
   readonly DATA_POINT_COUNT = 24 * 7 * 4;
   readonly PATH_LENGTH = 7;
@@ -77,7 +77,7 @@ export class DataGenerationService {
       [49.4695972915844, 8.485597318359476],
     ],
   ];
-  readonly CARRIERS_PER_ORDER = 50;
+  readonly CARRIERS_PER_ORDER = 10;
   readonly CUSTOMERS = [
     'Porsche Standort 1',
     'Porsche Standort 2',
@@ -89,9 +89,9 @@ export class DataGenerationService {
     const carriers = await this.generateCarriers();
     const carriersGroupedByOrder: Map<string, Carrier[]> = carriers.reduce(
       (map, carrier) => {
-        const entry: Carrier[] = map[carrier.order];
+        const entry: Carrier[] = map.get(carrier.order);
         if (!!entry) {
-          entry.push(carrier);
+          map.set(carrier.order, [...entry, carrier]);
         } else {
           map.set(carrier.order, [carrier]);
         }
@@ -99,19 +99,19 @@ export class DataGenerationService {
       },
       new Map(),
     );
-
+    
     for (const order of carriersGroupedByOrder.values()) {
       const orderPath = this.PATHS[randomInt(0, this.PATHS.length)];
       const pathDuration = 24 * randomInt(1, 5);
       const pathCyclesCount = Math.ceil(this.DATA_POINT_COUNT / pathDuration);
       const stationDuration = [
-        1 + randomInt(0, 3) * pathDuration,
-        4 + randomInt(0, 3) * pathDuration,
-        7 + randomInt(0, 3) * pathDuration,
-        10 + randomInt(0, 3) * pathDuration,
-        13 + randomInt(0, 3) * pathDuration,
-        17 + randomInt(0, 3) * pathDuration,
-        24 * pathDuration,
+        (1 + randomInt(0, 3)) / 24 * pathDuration,
+        (4 + randomInt(0, 3)) / 24 * pathDuration,
+        (7 + randomInt(0, 3)) / 24 * pathDuration,
+        (10 + randomInt(0, 3)) / 24 * pathDuration,
+        (13 + randomInt(0, 3)) / 24 * pathDuration,
+        (17 + randomInt(0, 3)) / 24 * pathDuration,
+        pathDuration,
       ];
       const stationLoad = [1, 0, 0, 0, 0, 0, 0];
 
