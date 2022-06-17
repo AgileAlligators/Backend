@@ -44,14 +44,6 @@ export class CarrierController {
     return this.carrierService.getUnique(organisation, 'type');
   }
 
-  @ApiResponse({ type: [String] })
-  @Get('components')
-  async getUniqueComponents(
-    @ROrganisation() organisation: string,
-  ): Promise<string[]> {
-    return this.carrierService.getUnique(organisation, 'component');
-  }
-
   @ApiResponse({ type: [Carrier] })
   @Post('search')
   async searchCarriers(

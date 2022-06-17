@@ -40,15 +40,13 @@ export class CarrierService {
     organisation: string,
     filter?: CarrierFilterDto,
   ): { qo: QueryOptions; fq: FilterQuery<Carrier> } {
-    const { limit, skip, customers, ids, orders, types, components } =
-      filter || {};
+    const { limit, skip, customers, ids, orders, types } = filter || {};
     const qo: QueryOptions = { sort: { _id: 1 }, limit, skip };
     const fq: FilterQuery<Carrier> = { _organisation: organisation };
 
     if (customers !== undefined) fq.customer = { $in: customers };
     if (orders !== undefined) fq.order = { $in: orders };
     if (types !== undefined) fq.type = { $in: types };
-    if (components !== undefined) fq.type = { $in: components };
     if (ids !== undefined) fq._id = { $in: ids };
     return { fq, qo };
   }
@@ -68,10 +66,10 @@ export class CarrierService {
   public async getUnique(
     organisation: string,
     field: string,
+    filter?: CarrierFilterDto,
   ): Promise<string[]> {
-    return this.carrierModel
-      .find({ _organisation: organisation })
-      .distinct(field);
+    const { fq } = this.getFilterOptions(organisation, filter);
+    return this.carrierModel.find(fq).distinct(field);
   }
 
   public async doesCarrierExist(

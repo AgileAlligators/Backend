@@ -39,4 +39,18 @@ export class DiagramController {
   ): Promise<DiagramDto[]> {
     return this.diagramService.getIdleOverTime(organisation, filter);
   }
+
+  @ApiOperation({ description: 'Create a vibration diagram with given filter' })
+  @ApiResponse({
+    type: [DiagramDto],
+    description: 'Returns the requested data for a vibration diagram',
+  })
+  @ApiBody({ type: DiagramFilterDto, required: true })
+  @Post('vibration')
+  async getVibrationDiagram(
+    @Body() filter: DiagramFilterDto,
+    @ROrganisation() organisation: string,
+  ): Promise<DiagramDto[]> {
+    return this.diagramService.getVibrationOverTime(organisation, filter);
+  }
 }

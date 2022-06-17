@@ -1,10 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ApiCarrierId } from 'src/carrier/carrier.api';
 
 export class DiagramDto {
-  @ApiProperty({
-    description: 'Carrier id',
-    example: '123456',
-  })
+  @ApiCarrierId()
   name: string;
 
   @ApiProperty({

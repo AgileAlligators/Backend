@@ -1,7 +1,6 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import {
-  ApiCarrierComponent,
   ApiCarrierCustomer,
   ApiCarrierOrder,
   ApiCarrierType,
@@ -33,10 +32,6 @@ export class Carrier extends Document {
   @ApiCarrierOrder({ required: true })
   @Prop({ required: true })
   order: string;
-
-  @ApiCarrierComponent({ required: false })
-  @Prop({ required: false })
-  component?: string;
 }
 
 const CarrierSchema = SchemaFactory.createForClass(Carrier);

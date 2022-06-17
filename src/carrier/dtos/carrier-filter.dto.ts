@@ -20,17 +20,6 @@ export class CarrierFilterDto extends SkipLimitDto {
 
   @ApiProperty({
     type: [String],
-    description: 'Bauteile, die der Ladungsträger transportiert',
-    required: false,
-  })
-  @IsOptional()
-  @MinLength(1, { each: true })
-  @IsDefined({ each: true })
-  @IsString({ each: true })
-  components?: string[];
-
-  @ApiProperty({
-    type: [String],
     description: 'Typen der Ladungsträger',
     required: false,
   })

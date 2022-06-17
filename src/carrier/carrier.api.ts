@@ -39,16 +39,6 @@ export const ApiCarrierOrder = (options?: ApiPropertyOptions) =>
     ...options,
   });
 
-export const ApiCarrierComponent = (options?: ApiPropertyOptions) =>
-  ApiProperty({
-    type: String,
-    description: 'Welches Bauteil transportiert der Ladungsträger',
-    example: 'Bremsschreiben',
-    required: true,
-    minLength: 1,
-    ...options,
-  });
-
 export const ApiCarrierTimestamp = (options?: ApiPropertyOptions) =>
   ApiProperty({
     type: Number,
