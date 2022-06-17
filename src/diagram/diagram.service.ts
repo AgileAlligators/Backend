@@ -65,7 +65,7 @@ export class DiagramService {
         (diagram: DiagramDto, data: DiagramDto) => {
           for (const dataEntry of data.data) {
             const entry = diagram.data.find((d) => d.x == dataEntry.x);
-            if (!entry) {
+            if (!!entry) {
               entry.y += dataEntry.y / dataSets.length;
             } else {
               diagram.data.push({
