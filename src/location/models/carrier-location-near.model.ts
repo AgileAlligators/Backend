@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, Max, Min } from 'class-validator';
 
-export class CarrierLocationNearFilterDto {
+export class CarrierLocationNear {
   @ApiProperty({
     type: Number,
     minimum: -180,

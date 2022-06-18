@@ -99,24 +99,25 @@ export class DataGenerationService {
       },
       new Map(),
     );
-    
+
     for (const order of carriersGroupedByOrder.values()) {
       const orderPath = this.PATHS[randomInt(0, this.PATHS.length)];
       const pathDuration = 24 * randomInt(1, 5);
       const pathCyclesCount = Math.ceil(this.DATA_POINT_COUNT / pathDuration);
       const stationDuration = [
-        (1 + randomInt(0, 3)) / 24 * pathDuration,
-        (4 + randomInt(0, 3)) / 24 * pathDuration,
-        (7 + randomInt(0, 3)) / 24 * pathDuration,
-        (10 + randomInt(0, 3)) / 24 * pathDuration,
-        (13 + randomInt(0, 3)) / 24 * pathDuration,
-        (17 + randomInt(0, 3)) / 24 * pathDuration,
+        ((1 + randomInt(0, 3)) / 24) * pathDuration,
+        ((4 + randomInt(0, 3)) / 24) * pathDuration,
+        ((7 + randomInt(0, 3)) / 24) * pathDuration,
+        ((10 + randomInt(0, 3)) / 24) * pathDuration,
+        ((13 + randomInt(0, 3)) / 24) * pathDuration,
+        ((17 + randomInt(0, 3)) / 24) * pathDuration,
         pathDuration,
       ];
       const stationLoad = [1, 0, 0, 0, 0, 0, 0];
 
       for (let index = 1; index < this.PATH_LENGTH - 1; index++) {
-        const newLoad = stationLoad[index - 1] - (Math.round(Math.random() * 2) * 0.1 + 0.1);
+        const newLoad =
+          stationLoad[index - 1] - (Math.round(Math.random() * 2) * 0.1 + 0.1);
         stationLoad[index] = newLoad > 0 ? newLoad : 0;
       }
 
@@ -129,25 +130,27 @@ export class DataGenerationService {
               station++;
             }
 
-            await this.carrierService.storeLocation(
-              this.ORGANISATION,
-              carrier.id,
-              {
-                latitude: orderPath[station][0],
-                longitude: orderPath[station][1],
-                timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
-              },
-            );
-            await this.carrierService.storeLoad(this.ORGANISATION, carrier.id, {
-              load: stationLoad[station],
-              timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
-            });
+            // await this.carrierService.storeLocation(
+            //   this.ORGANISATION,
+            //   carrier.id,
+            //   {
+            //     latitude: orderPath[station][0],
+            //     longitude: orderPath[station][1],
+            //     timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
+            //   },
+            // );
+            // await this.carrierService.storeLoad(this.ORGANISATION, carrier.id, {
+            //   load: stationLoad[station],
+            //   timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
+            // });
             timeProgress++;
           }
         }
       }
     }
-    console.log('************************** finished writing data **************************');
+    console.log(
+      '************************** finished writing data **************************',
+    );
   }
 
   private async generateCarriers(): Promise<Carrier[]> {

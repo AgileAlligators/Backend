@@ -6,20 +6,22 @@ import {
   MongoId,
   MongoIdTypes,
 } from 'src/_common/decorators/MongoId.decorator';
+import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
+import { DiagramDto } from 'src/_common/dto/diagram.dto';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
-import { CarrierService } from './carrier.service';
 import { CarrierVibrationFilterDto } from './dtos/carrier-vibration-filter.dto';
 import { StoreVibrationDto } from './dtos/store-vibration.dto';
 import { Vibration } from './schemas/Vibration.schema';
+import { VibrationService } from './vibration.service';
 
 const CarrierId = () => MongoId(MongoIdTypes.CARRIER, 'carrierId');
 const VibrationId = () => MongoId(MongoIdTypes.VIBRATION, 'vibrationId');
 
 @Auth()
-@ApiTags('Carrier Vibration')
-@Controller('carrier/vibration')
-export class CarrierVibrationController {
-  constructor(private readonly carrierService: CarrierService) {}
+@ApiTags('Vibration')
+@Controller('vibration')
+export class VibrationController {
+  constructor(private readonly vibrationService: VibrationService) {}
 
   @Perms('carrier.vibration.create')
   @ApiResponse({ type: Vibration })
@@ -29,7 +31,7 @@ export class CarrierVibrationController {
     @CarrierId() carrierId: string,
     @Body() dto: StoreVibrationDto,
   ): Promise<Vibration> {
-    return this.carrierService.storeVibration(organisation, carrierId, dto);
+    return this.vibrationService.store(organisation, carrierId, dto);
   }
 
   @ApiResponse({ type: [Vibration] })
@@ -38,7 +40,7 @@ export class CarrierVibrationController {
     @ROrganisation() organisation: string,
     @Body() dto: CarrierVibrationFilterDto,
   ): Promise<SearchResult<Vibration>> {
-    return this.carrierService.searchVibration(organisation, dto);
+    return this.vibrationService.search(organisation, dto);
   }
 
   @Perms('carrier.vibration.delete')
@@ -49,10 +51,15 @@ export class CarrierVibrationController {
     @CarrierId() carrierId: string,
     @VibrationId() vibrationId: string,
   ): Promise<boolean> {
-    return this.carrierService.deleteVibration(
-      organisation,
-      carrierId,
-      vibrationId,
-    );
+    return this.vibrationService.delete(organisation, carrierId, vibrationId);
+  }
+
+  @ApiResponse({ type: [DiagramDto] })
+  @Post('diagram')
+  async getLoadDiagram(
+    @Body() filter: DiagramFilterDto,
+    @ROrganisation() organisation: string,
+  ): Promise<DiagramDto[]> {
+    return this.vibrationService.getDiagram(organisation, filter);
   }
 }

@@ -1,4 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  NotImplementedException,
+  Post,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ROrganisation } from 'src/account/decorators/account.decorator';
 import { Auth } from 'src/account/guards/perms.guard';
@@ -26,7 +31,8 @@ export class HotspotController {
     @Body() filter: HotspotFilterDto,
     @ROrganisation() organisation: string,
   ): Promise<HotspotDto[]> {
-    return this.hotspotService.getLoadMap(organisation, filter);
+    throw new NotImplementedException();
+    // return this.hotspotService.getLoadMap(organisation, filter);
   }
 
   @ApiOperation({ description: 'Create a idle hotspot map with given filter' })
@@ -43,6 +49,7 @@ export class HotspotController {
     @Body() filter: HotspotFilterDto,
     @ROrganisation() organisation: string,
   ): Promise<HotspotDto[]> {
-    return this.hotspotService.getIdleMap(organisation, filter);
+    throw new NotImplementedException();
+    // return this.hotspotService.getIdleMap(organisation, filter);
   }
 }

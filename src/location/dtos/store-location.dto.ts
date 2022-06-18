@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
-import { ApiCarrierTimestamp } from '../carrier.api';
+import { ApiCarrierTimestamp } from '../../carrier/carrier.api';
 
 export class StoreLocationDto {
   @ApiCarrierTimestamp({ required: false })

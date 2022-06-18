@@ -1,8 +1,8 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { ApiCarrierId, ApiCarrierTimestamp } from '../carrier.api';
-import { GeoJSON } from '../models/GeoJson.model';
+import { ApiCarrierId, ApiCarrierTimestamp } from '../../carrier/carrier.api';
+import { GeoJSON } from '../../carrier/models/GeoJson.model';
 
 @Schema({
   toJSON: {
@@ -40,6 +40,7 @@ export class Location extends Document {
 }
 
 const LocationSchema = SchemaFactory.createForClass(Location);
+LocationSchema.index({ location: '2dsphere' });
 
 export const LocationDefinition: ModelDefinition = {
   name: Location.name,

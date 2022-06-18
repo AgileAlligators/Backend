@@ -1,10 +1,6 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import {
-  ApiCarrierId,
-  ApiCarrierLoad,
-  ApiCarrierTimestamp,
-} from '../carrier.api';
+import { Location } from 'src/location/schemas/Location.schema';
+import { ApiCarrierLoad } from '../../carrier/carrier.api';
 
 @Schema({
   toJSON: {
@@ -16,15 +12,7 @@ import {
     },
   },
 })
-export class Load extends Document {
-  @ApiCarrierId({ required: true })
-  @Prop({ required: true })
-  carrierId: string;
-
-  @ApiCarrierTimestamp({ required: true })
-  @Prop({ default: () => Date.now() })
-  timestamp: number;
-
+export class Load extends Location {
   @ApiCarrierLoad({ required: true })
   @Prop({ required: true })
   load: number;

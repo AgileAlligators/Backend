@@ -7,19 +7,19 @@ import {
   MongoIdTypes,
 } from 'src/_common/decorators/MongoId.decorator';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
-import { CarrierService } from './carrier.service';
 import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
 import { StoreLocationDto } from './dtos/store-location.dto';
+import { LocationService } from './location.service';
 import { Location } from './schemas/Location.schema';
 
 const CarrierId = () => MongoId(MongoIdTypes.CARRIER, 'carrierId');
 const LocationId = () => MongoId(MongoIdTypes.LOCATION, 'locationId');
 
 @Auth()
-@ApiTags('Carrier Location')
-@Controller('carrier/location')
-export class CarrierLocationController {
-  constructor(private readonly carrierService: CarrierService) {}
+@ApiTags('Location')
+@Controller('location')
+export class LocationController {
+  constructor(private readonly locationService: LocationService) {}
 
   @Perms('carrier.location.create')
   @ApiResponse({ type: Location })
@@ -29,7 +29,7 @@ export class CarrierLocationController {
     @CarrierId() carrierId: string,
     @Body() dto: StoreLocationDto,
   ): Promise<Location> {
-    return this.carrierService.storeLocation(organisation, carrierId, dto);
+    return this.locationService.store(organisation, carrierId, dto);
   }
 
   @ApiResponse({ type: [Location] })
@@ -38,7 +38,7 @@ export class CarrierLocationController {
     @ROrganisation() organisation: string,
     @Body() dto: CarrierLocationFilterDto,
   ): Promise<SearchResult<Location>> {
-    return this.carrierService.searchLocation(organisation, dto);
+    return this.locationService.search(organisation, dto);
   }
 
   @Perms('carrier.location.delete')
@@ -49,10 +49,6 @@ export class CarrierLocationController {
     @CarrierId() carrierId: string,
     @LocationId() locationId: string,
   ): Promise<boolean> {
-    return this.carrierService.deleteLocation(
-      organisation,
-      carrierId,
-      locationId,
-    );
+    return this.locationService.delete(organisation, carrierId, locationId);
   }
 }

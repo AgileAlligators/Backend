@@ -1,10 +1,6 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import {
-  ApiCarrierId,
-  ApiCarrierTimestamp,
-  ApiCarrierVibration,
-} from '../carrier.api';
+import { Location } from 'src/location/schemas/Location.schema';
+import { ApiCarrierVibration } from '../../carrier/carrier.api';
 
 @Schema({
   toJSON: {
@@ -16,15 +12,7 @@ import {
     },
   },
 })
-export class Vibration extends Document {
-  @ApiCarrierId({ required: true })
-  @Prop({ required: true })
-  carrierId: string;
-
-  @ApiCarrierTimestamp({ required: true })
-  @Prop({ default: () => Date.now() })
-  timestamp: number;
-
+export class Vibration extends Location {
   @ApiCarrierVibration({ required: true })
   @Prop({ required: true })
   vibration: number;

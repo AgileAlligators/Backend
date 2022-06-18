@@ -1,5 +1,8 @@
 import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
-import { ApiCarrierTimestamp, ApiCarrierVibration } from '../carrier.api';
+import {
+  ApiCarrierTimestamp,
+  ApiCarrierVibration,
+} from '../../carrier/carrier.api';
 
 export class StoreVibrationDto {
   @ApiCarrierTimestamp({ required: false })

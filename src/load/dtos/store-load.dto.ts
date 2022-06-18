@@ -1,5 +1,5 @@
 import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
-import { ApiCarrierLoad, ApiCarrierTimestamp } from '../carrier.api';
+import { ApiCarrierLoad, ApiCarrierTimestamp } from '../../carrier/carrier.api';
 
 export class StoreLoadDto {
   @ApiCarrierTimestamp({ required: false })
