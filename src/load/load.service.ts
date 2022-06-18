@@ -42,7 +42,6 @@ export class LoadService {
 
     const qo: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
     const fq: FilterQuery<Load> = { carrierId: { $in: ids } };
-
     if (start !== undefined) fq.timestamp = { $gte: start };
     if (end !== undefined) {
       if (fq.timestamp) fq.timestamp.$lte = end;
