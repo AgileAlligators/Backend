@@ -21,7 +21,7 @@ export class IdleService {
 
   public async syncIdle(carrierId: string): Promise<void> {
     await this.idleModel.deleteMany({ carrierId: carrierId });
-    this.idleModel.insertMany(await this.getIdles(carrierId));
+    this.getIdles(carrierId).then((idles) => this.idleModel.insertMany(idles));
   }
 
   public async search(

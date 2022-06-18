@@ -40,6 +40,7 @@ export class Location extends Document {
 }
 
 const LocationSchema = SchemaFactory.createForClass(Location);
+
 LocationSchema.index({ location: '2dsphere' });
 
 export const LocationDefinition: ModelDefinition = {
