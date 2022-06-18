@@ -7,10 +7,7 @@ import { AnalyzerModule } from './analyzer/analyzer.module';
 import { CarrierModule } from './carrier/carrier.module';
 import { DataGenerationModule } from './data-generation/data-generation.module';
 import { HotspotModule } from './hotspot/hotspot.module';
-import { LoadModule } from './load/load.module';
-import { LocationModule } from './location/location.module';
 import { StreamModule } from './stream/stream.module';
-import { VibrationModule } from './vibration/vibration.module';
 
 @Module({
   imports: [
@@ -30,9 +27,9 @@ import { VibrationModule } from './vibration/vibration.module';
     HotspotModule,
     DataGenerationModule,
     StreamModule,
-    LoadModule,
-    LocationModule,
-    VibrationModule,
+    // LoadModule,
+    // LocationModule,
+    // VibrationModule,
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })
