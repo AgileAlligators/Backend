@@ -24,8 +24,8 @@ export class Location extends Document {
   carrierId: string;
 
   @ApiCarrierTimestamp({ required: true })
-  @Prop({ default: () => Date.now() })
-  timestamp: number;
+  @Prop({ default: () => Date.now(), required: false })
+  timestamp?: number;
 
   @ApiProperty({
     type: [Number, Number],
