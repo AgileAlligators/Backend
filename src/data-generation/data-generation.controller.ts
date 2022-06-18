@@ -9,7 +9,9 @@ import { DataGenerationService } from './data-generation.service';
 export class DataGenerationController {
   constructor(private readonly dataService: DataGenerationService) {}
 
-  @ApiOperation({ description: 'Generates test data and writes it into the database' })
+  @ApiOperation({
+    description: 'Generates test data and writes it into the database',
+  })
   @ApiResponse({
     type: String,
     description: 'Returns a simple notification',
