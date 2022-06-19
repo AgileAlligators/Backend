@@ -29,7 +29,7 @@ export class Load extends Document {
 
   @ApiCarrierTimestamp({ required: true })
   @Prop({ default: () => Date.now() })
-  timestamp: number;
+  timestamp?: number;
 
   @ApiLocation({ required: false })
   @Prop({ required: false })
