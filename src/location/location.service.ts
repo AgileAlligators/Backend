@@ -121,7 +121,7 @@ export class LocationService {
       ...timestampFilter(filter),
     };
 
-    return this.locationModel.aggregate([
+    return (<any>this.locationModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids } },
       },
@@ -142,18 +142,19 @@ export class LocationService {
     carrierId: string,
     timestamp: number,
   ): Promise<GeoJSON | null> {
-    const locations: { location: GeoJSON }[] =
-      await this.locationModel.aggregate([
-        { $match: { carrierId: carrierId } },
-        {
-          $project: {
-            diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
-            location: '$location',
-          },
+    const locations: { location: GeoJSON }[] = await (<any>(
+      this.locationModel
+    )).aggregate([
+      { $match: { carrierId: carrierId } },
+      {
+        $project: {
+          diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
+          location: '$location',
         },
-        { $sort: { diff: 1 } },
-        { $limit: 1 },
-      ]);
+      },
+      { $sort: { diff: 1 } },
+      { $limit: 1 },
+    ]);
 
     return locations[0] ? locations[0].location : null;
   }

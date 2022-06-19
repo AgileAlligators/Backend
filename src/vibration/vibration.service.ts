@@ -46,7 +46,7 @@ export class VibrationService {
 
   public async sync(carrierId: string, timestamp: number): Promise<void> {
     const vibrations: { id: string; timestamp: number; carrierId: string }[] =
-      await this.vibrationModel.aggregate([
+      await (<any>this.vibrationModel).aggregate([
         { $match: { carrierId: carrierId, timestamp: { $exists: true } } },
         {
           $project: {
@@ -116,7 +116,7 @@ export class VibrationService {
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
     const { fq, ids } = await this.getOptions(organisation, filter, 10);
-    return this.vibrationModel.aggregate([
+    return (<any>this.vibrationModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
       },
@@ -145,7 +145,9 @@ export class VibrationService {
 
     // Avg of all
     if (ids.length > 10) {
-      const data = await this.vibrationModel.aggregate(this.getPipeline(fq));
+      const data = await (<any>this.vibrationModel).aggregate(
+        this.getPipeline(fq),
+      );
       return [{ name: 'Durchschnitt', data }];
     }
 
@@ -153,7 +155,9 @@ export class VibrationService {
     return Promise.all(
       ids.map(async (id) => {
         fq.carrierId = id;
-        const data = await this.vibrationModel.aggregate(this.getPipeline(fq));
+        const data = await (<any>this.vibrationModel).aggregate(
+          this.getPipeline(fq),
+        );
         return { name: id, data };
       }),
     );

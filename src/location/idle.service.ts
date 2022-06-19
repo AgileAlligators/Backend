@@ -59,7 +59,7 @@ export class IdleService {
     filter?: HotspotFilterDto,
   ): Promise<any[]> {
     const { fq, ids } = await this.getOptions(organisation, filter, 10);
-    return this.idleModel.aggregate([
+    return (<any>this.idleModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
       },
@@ -88,7 +88,7 @@ export class IdleService {
 
     // Avg of all
     if (ids.length > 10) {
-      const data = await this.idleModel.aggregate(this.getPipeline(fq));
+      const data = await (<any>this.idleModel).aggregate(this.getPipeline(fq));
       return [{ name: 'Durchschnitt', data }];
     }
 
@@ -96,7 +96,9 @@ export class IdleService {
     return Promise.all(
       ids.map(async (id) => {
         fq.carrierId = id;
-        const data = await this.idleModel.aggregate(this.getPipeline(fq));
+        const data = await (<any>this.idleModel).aggregate(
+          this.getPipeline(fq),
+        );
         return { name: id, data };
       }),
     );
@@ -148,7 +150,7 @@ export class IdleService {
       fq.timestamp = { $gte: timestamp - offset, $lte: timestamp + offset };
     }
 
-    return this.locationModel.aggregate([
+    return (<any>this.locationModel).aggregate([
       { $match: fq },
       { $sort: { timestamp: 1 } },
       { $group: { _id: 0, document: { $push: '$$ROOT' } } },

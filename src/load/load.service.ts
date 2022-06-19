@@ -46,7 +46,7 @@ export class LoadService {
 
   public async sync(carrierId: string, timestamp: number): Promise<any> {
     const loads: { id: string; timestamp: number; carrierId: string }[] =
-      await this.loadModel.aggregate([
+      await (<any>this.loadModel).aggregate([
         { $match: { carrierId: carrierId, timestamp: { $exists: true } } },
         {
           $project: {
@@ -113,7 +113,7 @@ export class LoadService {
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
     const { fq, ids } = await this.getOptions(organisation, filter, 10);
-    return this.loadModel.aggregate([
+    return (<any>this.loadModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
       },
@@ -142,7 +142,7 @@ export class LoadService {
 
     // Avg of all
     if (ids.length > 10) {
-      const data = await this.loadModel.aggregate(this.getPipeline(fq));
+      const data = await (<any>this.loadModel).aggregate(this.getPipeline(fq));
       return [{ name: 'Durchschnitt', data }];
     }
 
@@ -150,7 +150,9 @@ export class LoadService {
     return Promise.all(
       ids.map(async (id) => {
         fq.carrierId = id;
-        const data = await this.loadModel.aggregate(this.getPipeline(fq));
+        const data = await (<any>this.loadModel).aggregate(
+          this.getPipeline(fq),
+        );
         return { name: id, data };
       }),
     );
