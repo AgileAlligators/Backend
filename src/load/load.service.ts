@@ -46,8 +46,8 @@ export class LoadService {
 
   public async sync(carrierId: string, timestamp: number): Promise<any> {
     const loads: { id: string; timestamp: number; carrierId: string }[] =
-      await (<any>this.loadModel).aggregate([
-        { $match: { carrierId: carrierId, timestamp: { $exists: true } } },
+      await this.loadModel.aggregate([
+        { $match: { carrierId: carrierId, timestamp: { $gte: 0 } } },
         {
           $project: {
             diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
@@ -165,13 +165,13 @@ export class LoadService {
         $bucketAuto: {
           groupBy: '$timestamp',
           buckets: 100,
-          output: { y: { $avg: { $multiply: ['$load', 100] } } },
+          output: { y: { $avg: '$load' } },
         },
       },
       {
         $set: {
           x: { $round: [{ $avg: ['$_id.min', '$_id.max'] }] },
-          y: { $round: ['$y', 2] },
+          y: { $round: [{ $multiply: ['$y', 100] }, 2] },
         },
       },
       { $unset: '_id' },
