@@ -51,10 +51,12 @@ export class CarrierService {
   }
 
   public async getIds(
-    orgsnisation: string,
-    filter?: CarrierFilterDto,
+    organisation: string,
+    filter: CarrierFilterDto = {},
+    limit?: number,
   ): Promise<string[]> {
-    const ids = await this.getUnique(orgsnisation, '_id', filter);
+    const { fq } = this.getFilterOptions(organisation, filter);
+    const ids = await this.carrierModel.find(fq, {}, { limit }).distinct('_id');
     return ids.map((id) => id.toString());
   }
 

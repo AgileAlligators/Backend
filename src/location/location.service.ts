@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, QueryOptions } from 'mongoose';
 import { noop } from 'rxjs';
 import { CarrierService } from 'src/carrier/carrier.service';
+import { GeoJSON } from 'src/carrier/models/GeoJson.model';
+import { LoadService } from 'src/load/load.service';
+import { VibrationService } from 'src/vibration/vibration.service';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import {
   InvalidCarrier,
   InvalidLocation,
@@ -20,6 +25,11 @@ export class LocationService {
     private readonly locationModel: Model<Location>,
     private readonly carrierService: CarrierService,
     private readonly idleService: IdleService,
+
+    @Inject(forwardRef(() => LoadService))
+    private readonly loadService: LoadService,
+    @Inject(forwardRef(() => VibrationService))
+    private readonly vibrationService: VibrationService,
   ) {}
 
   public async store(
@@ -30,6 +40,7 @@ export class LocationService {
     if (!(await this.carrierService.exists(organisation, carrierId)))
       throw InvalidCarrier(carrierId);
 
+    if (!dto.timestamp) dto.timestamp = Date.now();
     const { timestamp, longitude, latitude } = dto;
     const location = await this.locationModel.create({
       carrierId,
@@ -37,7 +48,11 @@ export class LocationService {
       location: { type: 'Point', coordinates: [longitude, latitude] },
     });
 
-    this.idleService.syncIdle(carrierId).then(noop);
+    await Promise.all([
+      this.idleService.sync(carrierId, timestamp),
+      this.loadService.sync(carrierId, timestamp),
+      this.vibrationService.sync(carrierId, timestamp),
+    ]);
 
     return location;
   }
@@ -92,8 +107,59 @@ export class LocationService {
 
     if (res.deletedCount === 0) throw InvalidLocation(locationId);
 
-    this.idleService.syncIdle(carrierId).then(noop);
+    this.idleService.sync(carrierId).then(noop);
 
     return true;
+  }
+
+  public async getHotspot(
+    organisation: string,
+    filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    const { start, end } = filter || {};
+    const ids = await this.carrierService.getIds(organisation, filter, 10);
+
+    const fq: FilterQuery<Location> = { carrierId: { $in: ids } };
+    if (start !== undefined) fq.timestamp = { $gte: start };
+    if (end !== undefined) {
+      if (fq.timestamp) fq.timestamp.$lte = end;
+      else fq.timestamp = { $lte: end };
+    }
+
+    return this.locationModel.aggregate([
+      {
+        $match: { ...fq, carrierId: { $in: ids } },
+      },
+      {
+        $group: {
+          _id: '$carrierId',
+          dataTuples: {
+            $push: {
+              $concatArrays: [['$timestamp'], ['$location.coordinates'], [1]],
+            },
+          },
+        },
+      },
+    ]);
+  }
+
+  public async getClosestTo(
+    carrierId: string,
+    timestamp: number,
+  ): Promise<GeoJSON | null> {
+    const locations: { location: GeoJSON }[] =
+      await this.locationModel.aggregate([
+        { $match: { carrierId: carrierId } },
+        {
+          $project: {
+            diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
+            location: '$location',
+          },
+        },
+        { $sort: { diff: 1 } },
+        { $limit: 1 },
+      ]);
+
+    return locations[0] ? locations[0].location : null;
   }
 }

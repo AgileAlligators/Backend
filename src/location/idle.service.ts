@@ -4,6 +4,7 @@ import { FilterQuery, Model, PipelineStage, QueryOptions } from 'mongoose';
 import { CarrierService } from 'src/carrier/carrier.service';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierIdleFilterDto } from '../location/dtos/carrier-idle-filter.dto';
 import { Idle } from '../location/schemas/Idle.schema';
@@ -19,9 +20,17 @@ export class IdleService {
     private readonly carrierService: CarrierService,
   ) {}
 
-  public async syncIdle(carrierId: string): Promise<void> {
-    await this.idleModel.deleteMany({ carrierId: carrierId });
-    this.getIdles(carrierId).then((idles) => this.idleModel.insertMany(idles));
+  public async sync(carrierId: string, timestamp?: number): Promise<void> {
+    const idles = await this.getIdles(carrierId, timestamp);
+    await Promise.all(
+      idles.map((idle) => {
+        this.idleModel.updateOne(
+          { carrierId: idle.carrierId, timestamp: idle.timestamp },
+          { $set: idle },
+          { upsert: true },
+        );
+      }),
+    );
   }
 
   public async search(
@@ -45,6 +54,32 @@ export class IdleService {
       total: await this.idleModel.countDocuments(fq),
       results: await this.idleModel.find(fq, undefined, qo),
     };
+  }
+
+  public async getHotspot(
+    organisation: string,
+    filter?: HotspotFilterDto,
+  ): Promise<any[]> {
+    const { fq, ids } = await this.getOptions(organisation, filter, 10);
+    return this.idleModel.aggregate([
+      {
+        $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
+      },
+      {
+        $group: {
+          _id: '$carrierId',
+          dataTuples: {
+            $push: {
+              $concatArrays: [
+                ['$timestamp'],
+                ['$location.coordinates'],
+                [{ $round: ['$idle', 4] }],
+              ],
+            },
+          },
+        },
+      },
+    ]);
   }
 
   public async getDiagram(
@@ -92,9 +127,10 @@ export class IdleService {
 
   private async getOptions(
     organisation: string,
-    filter?: DiagramFilterDto,
+    filter: DiagramFilterDto | HotspotFilterDto = {},
+    maxIds = 11,
   ): Promise<{ ids: string[]; fq: FilterQuery<Idle> }> {
-    const ids = await this.carrierService.getIds(organisation, filter);
+    const ids = await this.carrierService.getIds(organisation, filter, maxIds);
 
     const { start, end } = filter || {};
     const fq: FilterQuery<Idle> = { carrierId: { $in: ids } };
@@ -107,9 +143,18 @@ export class IdleService {
     return { ids, fq };
   }
 
-  private async getIdles(carrierId: string): Promise<Idle[]> {
+  private async getIdles(
+    carrierId: string,
+    timestamp?: number,
+  ): Promise<Idle[]> {
+    const fq: FilterQuery<Location> = { carrierId: carrierId };
+    if (timestamp) {
+      const offset = 86400000; // 1 Day
+      fq.timestamp = { $gte: timestamp - offset, $lte: timestamp + offset };
+    }
+
     return this.locationModel.aggregate([
-      { $match: { carrierId: carrierId } },
+      { $match: fq },
       { $sort: { timestamp: 1 } },
       { $group: { _id: 0, document: { $push: '$$ROOT' } } },
       {

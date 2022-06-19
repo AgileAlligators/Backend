@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, PipelineStage, QueryOptions } from 'mongoose';
 import { CarrierService } from 'src/carrier/carrier.service';
+import { LocationService } from 'src/location/location.service';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import {
   InvalidCarrier,
   InvalidLoad,
@@ -18,6 +21,8 @@ export class LoadService {
   constructor(
     @InjectModel(Load.name)
     private readonly loadModel: Model<Load>,
+    @Inject(forwardRef(() => LocationService))
+    private readonly locationService: LocationService,
     private readonly carrierService: CarrierService,
   ) {}
 
@@ -29,7 +34,43 @@ export class LoadService {
     if (!(await this.carrierService.exists(organisation, carrierId)))
       throw InvalidCarrier(carrierId);
 
+    const location = await this.locationService.getClosestTo(
+      carrierId,
+      dto.timestamp || Date.now(),
+    );
+    if (location) dto.location = location;
+
     return this.loadModel.create({ carrierId, ...dto });
+  }
+
+  public async sync(carrierId: string, timestamp: number): Promise<any> {
+    const loads: { id: string; timestamp: number; carrierId: string }[] =
+      await this.loadModel.aggregate([
+        { $match: { carrierId: carrierId, timestamp: { $exists: true } } },
+        {
+          $project: {
+            diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
+            id: { $toString: '$_id' },
+            timestamp: '$timestamp',
+            carrierId: '$carrierId',
+          },
+        },
+        { $sort: { diff: 1 } },
+        { $limit: 10 },
+        { $unset: ['_id', 'diff'] },
+      ]);
+
+    await Promise.all(
+      loads.map(async (l) => {
+        const location = await this.locationService.getClosestTo(
+          l.carrierId,
+          l.timestamp,
+        );
+        if (location) {
+          this.loadModel.updateOne({ _id: l.id }, { $set: location });
+        }
+      }),
+    );
   }
 
   public async search(
@@ -66,6 +107,32 @@ export class LoadService {
 
     if (res.deletedCount === 0) throw InvalidLoad(loadId);
     return true;
+  }
+
+  public async getHotspot(
+    organisation: string,
+    filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    const { fq, ids } = await this.getOptions(organisation, filter, 10);
+    return this.loadModel.aggregate([
+      {
+        $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
+      },
+      {
+        $group: {
+          _id: '$carrierId',
+          dataTuples: {
+            $push: {
+              $concatArrays: [
+                ['$timestamp'],
+                ['$location.coordinates'],
+                [{ $round: ['$load', 4] }],
+              ],
+            },
+          },
+        },
+      },
+    ]);
   }
 
   public async getDiagram(
@@ -113,9 +180,10 @@ export class LoadService {
 
   private async getOptions(
     organisation: string,
-    filter?: DiagramFilterDto,
+    filter: DiagramFilterDto | HotspotFilterDto = {},
+    maxIds = 11,
   ): Promise<{ ids: string[]; fq: FilterQuery<Load> }> {
-    const ids = await this.carrierService.getIds(organisation, filter);
+    const ids = await this.carrierService.getIds(organisation, filter, maxIds);
 
     const { start, end } = filter || {};
     const fq: FilterQuery<Load> = { carrierId: { $in: ids } };

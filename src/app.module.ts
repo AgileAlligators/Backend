@@ -6,7 +6,6 @@ import { AccountModule } from './account/account.module';
 import { AnalyzerModule } from './analyzer/analyzer.module';
 import { CarrierModule } from './carrier/carrier.module';
 import { DataGenerationModule } from './data-generation/data-generation.module';
-import { HotspotModule } from './hotspot/hotspot.module';
 import { LoadModule } from './load/load.module';
 import { LocationModule } from './location/location.module';
 import { StreamModule } from './stream/stream.module';
@@ -27,7 +26,6 @@ import { VibrationModule } from './vibration/vibration.module';
     CarrierModule,
     AccountModule,
     AnalyzerModule,
-    HotspotModule,
     DataGenerationModule,
     StreamModule,
     LoadModule,

@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, PipelineStage, QueryOptions } from 'mongoose';
 import { CarrierService } from 'src/carrier/carrier.service';
+import { LocationService } from 'src/location/location.service';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import {
   InvalidCarrier,
   InvalidVibration,
@@ -18,6 +21,8 @@ export class VibrationService {
   constructor(
     @InjectModel(Vibration.name)
     private readonly vibrationModel: Model<Vibration>,
+    @Inject(forwardRef(() => LocationService))
+    private readonly locationService: LocationService,
     private readonly carrierService: CarrierService,
   ) {}
 
@@ -29,7 +34,43 @@ export class VibrationService {
     if (!(await this.carrierService.exists(organisation, carrierId)))
       throw InvalidCarrier(carrierId);
 
+    const location = await this.locationService.getClosestTo(
+      carrierId,
+      dto.timestamp || Date.now(),
+    );
+    if (location) dto.location = location;
+
     return this.vibrationModel.create({ carrierId, ...dto });
+  }
+
+  public async sync(carrierId: string, timestamp: number): Promise<void> {
+    const vibrations: { id: string; timestamp: number; carrierId: string }[] =
+      await this.vibrationModel.aggregate([
+        { $match: { carrierId: carrierId, timestamp: { $exists: true } } },
+        {
+          $project: {
+            diff: { $abs: { $subtract: [timestamp, '$timestamp'] } },
+            id: { $toString: '$_id' },
+            timestamp: '$timestamp',
+            carrierId: '$carrierId',
+          },
+        },
+        { $sort: { diff: 1 } },
+        { $limit: 10 },
+        { $unset: ['_id', 'diff'] },
+      ]);
+
+    await Promise.all(
+      vibrations.map(async (v) => {
+        const location = await this.locationService.getClosestTo(
+          v.carrierId,
+          v.timestamp,
+        );
+        if (location) {
+          this.vibrationModel.updateOne({ _id: v.id }, { $set: location });
+        }
+      }),
+    );
   }
 
   public async search(
@@ -70,6 +111,32 @@ export class VibrationService {
 
     if (res.deletedCount === 0) throw InvalidVibration(vibrationId);
     return true;
+  }
+
+  public async getHotspot(
+    organisation: string,
+    filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    const { fq, ids } = await this.getOptions(organisation, filter, 10);
+    return this.vibrationModel.aggregate([
+      {
+        $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
+      },
+      {
+        $group: {
+          _id: '$carrierId',
+          dataTuples: {
+            $push: {
+              $concatArrays: [
+                ['$timestamp'],
+                ['$location.coordinates'],
+                [{ $round: ['$vibration', 4] }],
+              ],
+            },
+          },
+        },
+      },
+    ]);
   }
 
   public async getDiagram(
@@ -117,9 +184,10 @@ export class VibrationService {
 
   private async getOptions(
     organisation: string,
-    filter?: DiagramFilterDto,
+    filter: DiagramFilterDto | HotspotFilterDto = {},
+    maxIds = 11,
   ): Promise<{ ids: string[]; fq: FilterQuery<Vibration> }> {
-    const ids = await this.carrierService.getIds(organisation, filter);
+    const ids = await this.carrierService.getIds(organisation, filter, maxIds);
 
     const { start, end } = filter || {};
     const fq: FilterQuery<Vibration> = { carrierId: { $in: ids } };

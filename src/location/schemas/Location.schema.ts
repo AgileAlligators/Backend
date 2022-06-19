@@ -1,8 +1,8 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { ApiCarrierId, ApiCarrierTimestamp } from '../../carrier/carrier.api';
 import { GeoJSON } from '../../carrier/models/GeoJson.model';
+import { ApiLocation } from '../location.api';
 
 @Schema({
   toJSON: {
@@ -24,17 +24,10 @@ export class Location extends Document {
   carrierId: string;
 
   @ApiCarrierTimestamp({ required: true })
-  @Prop({ default: () => Date.now(), required: false })
-  timestamp?: number;
+  @Prop({ default: () => Date.now() })
+  timestamp: number;
 
-  @ApiProperty({
-    type: [Number, Number],
-    name: 'coordinates',
-    description:
-      'Koordinaten (longitude [-180 bis 180], latitude [-90 bis 90])',
-    example: [0, 0],
-    required: true,
-  })
+  @ApiLocation({ required: true })
   @Prop({ required: true })
   location: GeoJSON;
 }

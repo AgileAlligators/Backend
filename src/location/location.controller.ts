@@ -6,6 +6,8 @@ import {
   MongoId,
   MongoIdTypes,
 } from 'src/_common/decorators/MongoId.decorator';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
 import { StoreLocationDto } from './dtos/store-location.dto';
@@ -50,5 +52,14 @@ export class LocationController {
     @LocationId() locationId: string,
   ): Promise<boolean> {
     return this.locationService.delete(organisation, carrierId, locationId);
+  }
+
+  @ApiResponse({ type: [HotspotDto] })
+  @Post('hotspot')
+  async getLoadHotspot(
+    @ROrganisation() organisation: string,
+    @Body() filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    return this.locationService.getHotspot(organisation, filter);
   }
 }

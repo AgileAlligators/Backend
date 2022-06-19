@@ -8,6 +8,8 @@ import {
 } from 'src/_common/decorators/MongoId.decorator';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierVibrationFilterDto } from './dtos/carrier-vibration-filter.dto';
 import { StoreVibrationDto } from './dtos/store-vibration.dto';
@@ -61,5 +63,14 @@ export class VibrationController {
     @ROrganisation() organisation: string,
   ): Promise<DiagramDto[]> {
     return this.vibrationService.getDiagram(organisation, filter);
+  }
+
+  @ApiResponse({ type: [HotspotDto] })
+  @Post('hotspot')
+  async getLoadHotspot(
+    @ROrganisation() organisation: string,
+    @Body() filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    return this.vibrationService.getHotspot(organisation, filter);
   }
 }

@@ -8,6 +8,8 @@ import {
 } from 'src/_common/decorators/MongoId.decorator';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
+import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
 import { StoreLoadDto } from './dtos/store-load.dto';
@@ -57,9 +59,18 @@ export class LoadController {
   @ApiResponse({ type: [DiagramDto] })
   @Post('diagram')
   async getLoadDiagram(
-    @Body() filter: DiagramFilterDto,
     @ROrganisation() organisation: string,
+    @Body() filter?: DiagramFilterDto,
   ): Promise<DiagramDto[]> {
     return this.loadService.getDiagram(organisation, filter);
+  }
+
+  @ApiResponse({ type: [HotspotDto] })
+  @Post('hotspot')
+  async getLoadHotspot(
+    @ROrganisation() organisation: string,
+    @Body() filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    return this.loadService.getHotspot(organisation, filter);
   }
 }

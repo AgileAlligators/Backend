@@ -1,4 +1,5 @@
 import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import { GeoJSON } from 'src/carrier/models/GeoJson.model';
 import {
   ApiCarrierTimestamp,
   ApiCarrierVibration,
@@ -15,4 +16,6 @@ export class StoreVibrationDto {
   @Min(0, { message: 'Die Erschütterung darf nicht kleiner als 0 sein' })
   @IsNumber({}, { message: 'Die Erschütterung muss als Zahl angegeben werden' })
   load: number;
+
+  location?: GeoJSON;
 }

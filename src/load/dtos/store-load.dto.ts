@@ -1,4 +1,5 @@
 import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { GeoJSON } from 'src/carrier/models/GeoJson.model';
 import { ApiCarrierLoad, ApiCarrierTimestamp } from '../../carrier/carrier.api';
 
 export class StoreLoadDto {
@@ -13,4 +14,6 @@ export class StoreLoadDto {
   @Min(0, { message: 'Der Beladung darf nicht kleiner als 0 sein' })
   @IsNumber({}, { message: 'Der Beladung muss in Prozent angegeben werden' })
   load: number;
+
+  location?: GeoJSON;
 }
