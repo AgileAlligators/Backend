@@ -5,6 +5,7 @@ import { CarrierService } from 'src/carrier/carrier.service';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
 import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { timestampFilter } from 'src/_common/functions/timestampFilter.function';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierIdleFilterDto } from '../location/dtos/carrier-idle-filter.dto';
 import { Idle } from '../location/schemas/Idle.schema';
@@ -37,18 +38,15 @@ export class IdleService {
     organisation: string,
     dto: CarrierIdleFilterDto,
   ): Promise<SearchResult<Idle>> {
-    const { end, start, skip, limit } = dto;
+    const { skip, limit } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
     const qo: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
-    const fq: FilterQuery<Idle> = { carrierId: { $in: ids } };
-
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Idle> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(dto),
+    };
 
     return {
       total: await this.idleModel.countDocuments(fq),
@@ -132,13 +130,10 @@ export class IdleService {
   ): Promise<{ ids: string[]; fq: FilterQuery<Idle> }> {
     const ids = await this.carrierService.getIds(organisation, filter, maxIds);
 
-    const { start, end } = filter || {};
-    const fq: FilterQuery<Idle> = { carrierId: { $in: ids } };
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Idle> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(filter),
+    };
 
     return { ids, fq };
   }

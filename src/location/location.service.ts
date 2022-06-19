@@ -12,6 +12,7 @@ import {
   InvalidCarrier,
   InvalidLocation,
 } from 'src/_common/exceptions/ItemNotFound.exception';
+import { timestampFilter } from 'src/_common/functions/timestampFilter.function';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierLocationFilterDto } from './dtos/carrier-location-filter.dto';
 import { StoreLocationDto } from './dtos/store-location.dto';
@@ -61,18 +62,15 @@ export class LocationService {
     organisation: string,
     dto: CarrierLocationFilterDto,
   ): Promise<SearchResult<Location>> {
-    const { end, start, near, skip, limit } = dto;
+    const { near, skip, limit } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
     const qo: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
-    const fq: FilterQuery<Location> = { carrierId: { $in: ids } };
-
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Location> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(dto),
+    };
 
     if (near !== undefined) {
       fq.location = {
@@ -116,15 +114,12 @@ export class LocationService {
     organisation: string,
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
-    const { start, end } = filter || {};
     const ids = await this.carrierService.getIds(organisation, filter, 10);
 
-    const fq: FilterQuery<Location> = { carrierId: { $in: ids } };
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Location> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(filter),
+    };
 
     return this.locationModel.aggregate([
       {

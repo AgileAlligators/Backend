@@ -11,6 +11,7 @@ import {
   InvalidCarrier,
   InvalidLoad,
 } from 'src/_common/exceptions/ItemNotFound.exception';
+import { timestampFilter } from 'src/_common/functions/timestampFilter.function';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
 import { StoreLoadDto } from './dtos/store-load.dto';
@@ -77,17 +78,15 @@ export class LoadService {
     organisation: string,
     dto: CarrierLoadFilterDto,
   ): Promise<SearchResult<Load>> {
-    const { end, start, skip, limit } = dto;
+    const { skip, limit } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
     const qo: QueryOptions = { sort: { timestamp: -1 }, limit, skip };
-    const fq: FilterQuery<Load> = { carrierId: { $in: ids } };
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Load> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(dto),
+    };
 
     return {
       total: await this.loadModel.countDocuments(fq),
@@ -185,13 +184,10 @@ export class LoadService {
   ): Promise<{ ids: string[]; fq: FilterQuery<Load> }> {
     const ids = await this.carrierService.getIds(organisation, filter, maxIds);
 
-    const { start, end } = filter || {};
-    const fq: FilterQuery<Load> = { carrierId: { $in: ids } };
-    if (start !== undefined) fq.timestamp = { $gte: start };
-    if (end !== undefined) {
-      if (fq.timestamp) fq.timestamp.$lte = end;
-      else fq.timestamp = { $lte: end };
-    }
+    const fq: FilterQuery<Load> = {
+      carrierId: { $in: ids },
+      ...timestampFilter(filter),
+    };
 
     return { ids, fq };
   }
