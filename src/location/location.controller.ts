@@ -23,15 +23,13 @@ const LocationId = () => MongoId(MongoIdTypes.LOCATION, 'locationId');
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
-  @Perms('carrier.location.create')
-  @ApiResponse({ type: Location })
-  @Post(':carrierId')
-  async storeLocation(
+  @ApiResponse({ type: [HotspotDto] })
+  @Post('hotspot')
+  async getLoadHotspot(
     @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @Body() dto: StoreLocationDto,
-  ): Promise<Location> {
-    return this.locationService.store(organisation, carrierId, dto);
+    @Body() filter?: HotspotFilterDto,
+  ): Promise<HotspotDto[]> {
+    return this.locationService.getHotspot(organisation, filter);
   }
 
   @ApiResponse({ type: [Location] })
@@ -43,6 +41,17 @@ export class LocationController {
     return this.locationService.search(organisation, dto);
   }
 
+  @Perms('carrier.location.create')
+  @ApiResponse({ type: Location })
+  @Post(':carrierId')
+  async storeLocation(
+    @ROrganisation() organisation: string,
+    @CarrierId() carrierId: string,
+    @Body() dto: StoreLocationDto,
+  ): Promise<Location> {
+    return this.locationService.store(organisation, carrierId, dto);
+  }
+
   @Perms('carrier.location.delete')
   @ApiResponse({ type: Boolean })
   @Delete(':carrierId/:locationId')
@@ -52,14 +61,5 @@ export class LocationController {
     @LocationId() locationId: string,
   ): Promise<boolean> {
     return this.locationService.delete(organisation, carrierId, locationId);
-  }
-
-  @ApiResponse({ type: [HotspotDto] })
-  @Post('hotspot')
-  async getLoadHotspot(
-    @ROrganisation() organisation: string,
-    @Body() filter?: HotspotFilterDto,
-  ): Promise<HotspotDto[]> {
-    return this.locationService.getHotspot(organisation, filter);
   }
 }

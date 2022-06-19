@@ -25,37 +25,6 @@ const LoadId = () => MongoId(MongoIdTypes.LOAD, 'loadId');
 export class LoadController {
   constructor(private readonly loadService: LoadService) {}
 
-  @Perms('carrier.load.create')
-  @ApiResponse({ type: Load })
-  @Post(':carrierId')
-  async storeLoad(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @Body() dto: StoreLoadDto,
-  ): Promise<Load> {
-    return this.loadService.store(organisation, carrierId, dto);
-  }
-
-  @ApiResponse({ type: [Load] })
-  @Post('search')
-  async searchLoad(
-    @ROrganisation() organisation: string,
-    @Body() dto: CarrierLoadFilterDto,
-  ): Promise<SearchResult<Load>> {
-    return this.loadService.search(organisation, dto);
-  }
-
-  @Perms('carrier.load.delete')
-  @ApiResponse({ type: Boolean })
-  @Delete(':carrierId/:loadId')
-  async deleteLoad(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @LoadId() loadId: string,
-  ): Promise<boolean> {
-    return this.loadService.delete(organisation, carrierId, loadId);
-  }
-
   @ApiResponse({ type: [DiagramDto] })
   @Post('diagram')
   async getLoadDiagram(
@@ -72,5 +41,36 @@ export class LoadController {
     @Body() filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
     return this.loadService.getHotspot(organisation, filter);
+  }
+
+  @ApiResponse({ type: [Load] })
+  @Post('search')
+  async searchLoad(
+    @ROrganisation() organisation: string,
+    @Body() dto: CarrierLoadFilterDto,
+  ): Promise<SearchResult<Load>> {
+    return this.loadService.search(organisation, dto);
+  }
+
+  @Perms('carrier.load.create')
+  @ApiResponse({ type: Load })
+  @Post(':carrierId')
+  async storeLoad(
+    @ROrganisation() organisation: string,
+    @CarrierId() carrierId: string,
+    @Body() dto: StoreLoadDto,
+  ): Promise<Load> {
+    return this.loadService.store(organisation, carrierId, dto);
+  }
+
+  @Perms('carrier.load.delete')
+  @ApiResponse({ type: Boolean })
+  @Delete(':carrierId/:loadId')
+  async deleteLoad(
+    @ROrganisation() organisation: string,
+    @CarrierId() carrierId: string,
+    @LoadId() loadId: string,
+  ): Promise<boolean> {
+    return this.loadService.delete(organisation, carrierId, loadId);
   }
 }

@@ -25,37 +25,6 @@ const VibrationId = () => MongoId(MongoIdTypes.VIBRATION, 'vibrationId');
 export class VibrationController {
   constructor(private readonly vibrationService: VibrationService) {}
 
-  @Perms('carrier.vibration.create')
-  @ApiResponse({ type: Vibration })
-  @Post(':carrierId')
-  async storeVibration(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @Body() dto: StoreVibrationDto,
-  ): Promise<Vibration> {
-    return this.vibrationService.store(organisation, carrierId, dto);
-  }
-
-  @ApiResponse({ type: [Vibration] })
-  @Post('search')
-  async searchVibration(
-    @ROrganisation() organisation: string,
-    @Body() dto: CarrierVibrationFilterDto,
-  ): Promise<SearchResult<Vibration>> {
-    return this.vibrationService.search(organisation, dto);
-  }
-
-  @Perms('carrier.vibration.delete')
-  @ApiResponse({ type: Boolean })
-  @Delete(':carrierId/:vibrationId')
-  async deleteVibration(
-    @ROrganisation() organisation: string,
-    @CarrierId() carrierId: string,
-    @VibrationId() vibrationId: string,
-  ): Promise<boolean> {
-    return this.vibrationService.delete(organisation, carrierId, vibrationId);
-  }
-
   @ApiResponse({ type: [DiagramDto] })
   @Post('diagram')
   async getLoadDiagram(
@@ -72,5 +41,36 @@ export class VibrationController {
     @Body() filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
     return this.vibrationService.getHotspot(organisation, filter);
+  }
+
+  @ApiResponse({ type: [Vibration] })
+  @Post('search')
+  async searchVibration(
+    @ROrganisation() organisation: string,
+    @Body() dto: CarrierVibrationFilterDto,
+  ): Promise<SearchResult<Vibration>> {
+    return this.vibrationService.search(organisation, dto);
+  }
+
+  @Perms('carrier.vibration.create')
+  @ApiResponse({ type: Vibration })
+  @Post(':carrierId')
+  async storeVibration(
+    @ROrganisation() organisation: string,
+    @CarrierId() carrierId: string,
+    @Body() dto: StoreVibrationDto,
+  ): Promise<Vibration> {
+    return this.vibrationService.store(organisation, carrierId, dto);
+  }
+
+  @Perms('carrier.vibration.delete')
+  @ApiResponse({ type: Boolean })
+  @Delete(':carrierId/:vibrationId')
+  async deleteVibration(
+    @ROrganisation() organisation: string,
+    @CarrierId() carrierId: string,
+    @VibrationId() vibrationId: string,
+  ): Promise<boolean> {
+    return this.vibrationService.delete(organisation, carrierId, vibrationId);
   }
 }

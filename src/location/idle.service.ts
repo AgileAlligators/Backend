@@ -117,7 +117,7 @@ export class IdleService {
       {
         $set: {
           x: { $round: [{ $avg: ['$_id.min', '$_id.max'] }] },
-          y: { $round: ['$y', 2] },
+          y: { $round: [{ $divide: ['$y', 60000] }, 0] },
         },
       },
       { $unset: '_id' },
