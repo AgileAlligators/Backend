@@ -93,15 +93,19 @@ export class IdleService {
     }
 
     // Avg of individuell
-    return Promise.all(
-      ids.map(async (id) => {
-        fq.carrierId = id;
-        const data = await (<any>this.idleModel).aggregate(
-          this.getPipeline(fq),
-        );
-        return { name: id, data };
-      }),
+    const data = await Promise.all(
+      ids.map((id) =>
+        (<any>this.idleModel).aggregate(
+          this.getPipeline({ ...fq, carrierId: id }),
+        ),
+      ),
     );
+
+    return ids
+      .map((id, index) => {
+        return { name: id, data: data[index] };
+      })
+      .filter(({ data }) => data.length > 0);
   }
 
   private getPipeline(match: FilterQuery<Idle>): PipelineStage[] {
