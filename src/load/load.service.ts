@@ -68,7 +68,7 @@ export class LoadService {
           l.timestamp,
         );
         if (location) {
-          this.loadModel.updateOne({ _id: l.id }, { $set: location });
+          return this.loadModel.updateOne({ _id: l.id }, { $set: location });
         }
       }),
     );

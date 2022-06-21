@@ -68,7 +68,10 @@ export class VibrationService {
           v.timestamp,
         );
         if (location) {
-          this.vibrationModel.updateOne({ _id: v.id }, { $set: location });
+          return this.vibrationModel.updateOne(
+            { _id: v.id },
+            { $set: location },
+          );
         }
       }),
     );

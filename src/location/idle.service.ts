@@ -19,18 +19,26 @@ export class IdleService {
     @InjectModel(Location.name)
     private readonly locationModel: Model<Location>,
     private readonly carrierService: CarrierService,
-  ) {}
+  ) {
+    // this.carrierService.getIds('Porsche').then(async (ids) => {
+    //   console.log('start sync');
+    //   await Promise.all(ids.map((id) => this.sync(id)));
+    //   console.log('all synced');
+    // });
+    // this.getHotspot('Prosche').then((d) => console.log(d));
+  }
 
   public async sync(carrierId: string, timestamp?: number): Promise<void> {
     const idles = await this.getIdles(carrierId, timestamp);
+
     await Promise.all(
-      idles.map((idle) => {
+      idles.map(async (idle) =>
         this.idleModel.updateOne(
           { carrierId: idle.carrierId, timestamp: idle.timestamp },
           { $set: idle },
           { upsert: true },
-        );
-      }),
+        ),
+      ),
     );
   }
 
@@ -71,7 +79,7 @@ export class IdleService {
               $concatArrays: [
                 ['$timestamp'],
                 ['$location.coordinates'],
-                [{ $round: ['$idle', 4] }],
+                [{ $round: [{ $divide: ['$idle', 60] }, 2] }],
               ],
             },
           },
