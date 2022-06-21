@@ -2,10 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { randomInt } from 'crypto';
 import { CarrierService } from 'src/carrier/carrier.service';
 import { Carrier } from 'src/carrier/schemas/Carrier.schema';
+import { LoadService } from 'src/load/load.service';
+import { LocationService } from 'src/location/location.service';
+import { VibrationService } from 'src/vibration/vibration.service';
 
 @Injectable()
 export class DataGenerationService {
-  constructor(private readonly carrierService: CarrierService) {}
+  constructor(
+    private readonly carrierService: CarrierService,
+    private readonly locationService: LocationService,
+    private readonly loadService: LoadService,
+    private readonly vibrationService: VibrationService,
+  ) {}
 
   readonly ORGANISATION = 'Porsche';
   readonly STARTING_TIME = 1655244000000; // 14.06.2022, 00:00:00
@@ -77,6 +85,9 @@ export class DataGenerationService {
       [49.4695972915844, 8.485597318359476],
     ],
   ];
+  readonly LOCATION_VARIANCE = 0.000005;
+  readonly LOAD_VARIANCE = 0.1;
+  readonly VIBRATION_EVENT_CHANCE = 0.01;
   readonly CARRIERS_PER_ORDER = 10;
   readonly CUSTOMERS = [
     'Porsche Standort 1',
@@ -129,20 +140,23 @@ export class DataGenerationService {
             if (hour >= stationDuration[station]) {
               station++;
             }
-
-            // await this.carrierService.storeLocation(
-            //   this.ORGANISATION,
-            //   carrier.id,
-            //   {
-            //     latitude: orderPath[station][0],
-            //     longitude: orderPath[station][1],
-            //     timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
-            //   },
-            // );
-            // await this.carrierService.storeLoad(this.ORGANISATION, carrier.id, {
-            //   load: stationLoad[station],
-            //   timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
-            // });
+            await this.locationService.store(
+              this.ORGANISATION,
+              carrier.id,
+              {
+                longitude: orderPath[station][0] + Math.random() * this.LOCATION_VARIANCE,
+                latitude: orderPath[station][1] + Math.random() * this.LOCATION_VARIANCE,
+                timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
+              },
+            );
+            await this.loadService.store(this.ORGANISATION, carrier.id, {
+              load: this.stationLoadVariance(stationLoad[station], hour === stationDuration[station] - 1),
+              timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
+            });
+            await this.vibrationService.store(this.ORGANISATION, carrier.id, {
+              vibration: Math.random() < this.VIBRATION_EVENT_CHANCE ? Math.random() * 0.5 + 0.5 : Math.random() * 0.2 + 0.1,
+              timestamp: this.STARTING_TIME + this.TIME_DIFF * timeProgress,
+            });
             timeProgress++;
           }
         }
@@ -168,5 +182,19 @@ export class DataGenerationService {
       }
     }
     return (await this.carrierService.search(this.ORGANISATION)).results;
+  }
+
+  private stationLoadVariance(original: number, directlyBeforeStationChange: boolean): number {
+    let newValue = original;
+
+    if (directlyBeforeStationChange) {
+      if (Math.random() < 0.25) {
+        newValue -= this.LOAD_VARIANCE;
+      }
+  
+      newValue = newValue > 1 ? 1 : newValue < 0 ? 0 : newValue;
+    }
+
+    return newValue;
   }
 }

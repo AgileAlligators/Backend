@@ -15,7 +15,7 @@ export class StoreVibrationDto {
   @ApiCarrierVibration({ required: true })
   @Min(0, { message: 'Die Erschütterung darf nicht kleiner als 0 sein' })
   @IsNumber({}, { message: 'Die Erschütterung muss als Zahl angegeben werden' })
-  load: number;
+  vibration: number;
 
   location?: GeoJSON;
 }
