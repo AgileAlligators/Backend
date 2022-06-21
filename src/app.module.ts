@@ -2,6 +2,8 @@ import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AccountModule } from './account/account.module';
 import { AnalyzerModule } from './analyzer/analyzer.module';
 import { CarrierModule } from './carrier/carrier.module';
@@ -15,6 +17,11 @@ import { VibrationModule } from './vibration/vibration.module';
   imports: [
     CacheModule.register({ isGlobal: true }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'documentation'),
+      exclude: ['/api*'],
+      serveRoot: '/docs',
+    }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {

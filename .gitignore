@@ -4,6 +4,7 @@
 /dist
 /node_modules
 /src2
+/documentation
 
 # Logs
 logs

@@ -5,6 +5,7 @@ import { CarrierService } from 'src/carrier/carrier.service';
 import { DiagramFilterDto } from 'src/_common/dto/diagram-filter.dto';
 import { DiagramDto } from 'src/_common/dto/diagram.dto';
 import { HotspotFilterDto } from 'src/_common/dto/hotspot-filter.dto';
+import { HotspotDto } from 'src/_common/dto/hotspot.dto';
 import { timestampFilter } from 'src/_common/functions/timestampFilter.function';
 import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierIdleFilterDto } from '../location/dtos/carrier-idle-filter.dto';
@@ -22,10 +23,19 @@ export class IdleService {
   ) {
     // this.carrierService.getIds('Porsche').then(async (ids) => {
     //   console.log('start sync');
-    //   await Promise.all(ids.map((id) => this.sync(id)));
+    //   let synced = 0;
+    //   await Promise.all(
+    //     ids.map((id) =>
+    //       this.sync(id).then(() =>
+    //         console.log(`Synced ${++synced} of ${ids.length}`),
+    //       ),
+    //     ),
+    //   );
     //   console.log('all synced');
     // });
-    // this.getHotspot('Prosche').then((d) => console.log(d));
+    // this.getHotspot('Porsche', { ids: ['62b16e474e33eff002446bdc'] }).then(
+    //   (d) => console.log(d[0].dataTuples.map((x) => x[2])),
+    // );
   }
 
   public async sync(carrierId: string, timestamp?: number): Promise<void> {
@@ -65,8 +75,9 @@ export class IdleService {
   public async getHotspot(
     organisation: string,
     filter?: HotspotFilterDto,
-  ): Promise<any[]> {
+  ): Promise<HotspotDto[]> {
     const { fq, ids } = await this.getOptions(organisation, filter, 10);
+
     return (<any>this.idleModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },
@@ -143,6 +154,8 @@ export class IdleService {
     maxIds = 11,
   ): Promise<{ ids: string[]; fq: FilterQuery<Idle> }> {
     const ids = await this.carrierService.getIds(organisation, filter, maxIds);
+
+    console.log('ids', filter, ids);
 
     const fq: FilterQuery<Idle> = {
       carrierId: { $in: ids },
