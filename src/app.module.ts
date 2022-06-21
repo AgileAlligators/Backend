@@ -12,6 +12,7 @@ import { LoadModule } from './load/load.module';
 import { LocationModule } from './location/location.module';
 import { StreamModule } from './stream/stream.module';
 import { VibrationModule } from './vibration/vibration.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { VibrationModule } from './vibration/vibration.module';
     LoadModule,
     LocationModule,
     VibrationModule,
+    HealthModule,
   ],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }],
 })

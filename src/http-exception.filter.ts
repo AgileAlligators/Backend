@@ -12,6 +12,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
+    if (request.originalUrl.endsWith('health')) {
+      response.send(exception.getResponse());
+      return;
+    }
+
     const status = exception.getStatus();
     let message = (exception.getResponse() as any).message || exception.message;
 
