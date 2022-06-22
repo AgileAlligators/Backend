@@ -176,7 +176,7 @@ export class VibrationService {
       {
         $bucketAuto: {
           groupBy: '$timestamp',
-          buckets: 100,
+          buckets: 150,
           output: { y: { $avg: '$vibration' } },
         },
       },

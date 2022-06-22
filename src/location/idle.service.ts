@@ -36,6 +36,7 @@ export class IdleService {
     // this.getHotspot('Porsche', { ids: ['62b16e474e33eff002446bdc'] }).then(
     //   (d) => console.log(d[0].dataTuples.map((x) => x[2])),
     // );
+    // this.getDiagram('Porsche').then((res) => console.log(res[0]));
   }
 
   public async sync(carrierId: string, timestamp?: number): Promise<void> {
@@ -133,7 +134,7 @@ export class IdleService {
       {
         $bucketAuto: {
           groupBy: '$timestamp',
-          buckets: 100,
+          buckets: 150,
           output: { y: { $avg: '$idle' } },
         },
       },
