@@ -112,7 +112,7 @@ export class LoadService {
     organisation: string,
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
-    const { fq, ids } = await this.getOptions(organisation, filter, 10);
+    const { fq, ids } = await this.getOptions(organisation, filter, 50);
     return (<any>this.loadModel).aggregate([
       {
         $match: { ...fq, carrierId: { $in: ids }, location: { $exists: true } },

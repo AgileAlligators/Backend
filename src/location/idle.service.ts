@@ -33,10 +33,6 @@ export class IdleService {
     //   );
     //   console.log('all synced');
     // });
-    // this.getHotspot('Porsche', { ids: ['62b16e474e33eff002446bdc'] }).then(
-    //   (d) => console.log(d[0].dataTuples.map((x) => x[2])),
-    // );
-    // this.getDiagram('Porsche').then((res) => console.log(res[0]));
   }
 
   public async sync(carrierId: string, timestamp?: number): Promise<void> {
@@ -77,7 +73,7 @@ export class IdleService {
     organisation: string,
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
-    const { fq, ids } = await this.getOptions(organisation, filter, 10);
+    const { fq, ids } = await this.getOptions(organisation, filter, 50);
 
     return (<any>this.idleModel).aggregate([
       {
@@ -155,8 +151,6 @@ export class IdleService {
     maxIds = 11,
   ): Promise<{ ids: string[]; fq: FilterQuery<Idle> }> {
     const ids = await this.carrierService.getIds(organisation, filter, maxIds);
-
-    console.log('ids', filter, ids);
 
     const fq: FilterQuery<Idle> = {
       carrierId: { $in: ids },
