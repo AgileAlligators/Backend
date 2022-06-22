@@ -73,7 +73,7 @@ export class IdleService {
     organisation: string,
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
-    const { fq, ids } = await this.getOptions(organisation, filter, 50);
+    const { fq, ids } = await this.getOptions(organisation, filter, 25);
 
     return (<any>this.idleModel).aggregate([
       {

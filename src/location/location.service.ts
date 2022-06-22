@@ -114,7 +114,7 @@ export class LocationService {
     organisation: string,
     filter?: HotspotFilterDto,
   ): Promise<HotspotDto[]> {
-    const ids = await this.carrierService.getIds(organisation, filter, 50);
+    const ids = await this.carrierService.getIds(organisation, filter, 25);
 
     const fq: FilterQuery<Location> = {
       carrierId: { $in: ids },
