@@ -139,7 +139,7 @@ export class IdleService {
       {
         $set: {
           x: { $round: [{ $avg: ['$_id.min', '$_id.max'] }] },
-          y: { $round: [{ $divide: ['$y', 60000] }, 0] },
+          y: { $round: ['$y', 0] },
         },
       },
       { $unset: '_id' },
@@ -241,20 +241,20 @@ export class IdleService {
       },
       {
         $set: {
+          distance: {
+            $cond: {
+              if: { $gt: ['$r', 1] },
+              then: { $multiply: [{ $acos: 1 }, 6371392.896] },
+              else: { $multiply: [{ $acos: '$r' }, 6371392.896] },
+            },
+          },
+        },
+      },
+      {
+        $set: {
           idle: {
             $cond: {
-              if: {
-                $gt: [
-                  {
-                    $cond: {
-                      if: { $gt: ['$r', 1] },
-                      then: { $multiply: [{ $acos: 1 }, 6371392.896] },
-                      else: { $multiply: [{ $acos: '$r' }, 6371392.896] },
-                    },
-                  },
-                  5,
-                ],
-              },
+              if: { $gt: ['$distance', 5] },
               then: 0,
               else: {
                 $trunc: [
@@ -280,6 +280,7 @@ export class IdleService {
           'prevLoc',
           '_id',
           '__v',
+          'distance',
         ],
       },
       { $match: { idle: { $ne: null } } },

@@ -16,16 +16,32 @@ import { SearchResult } from 'src/_common/search/SearchResult.dto';
 import { CarrierLoadFilterDto } from './dtos/carrier-load-filter.dto';
 import { StoreLoadDto } from './dtos/store-load.dto';
 import { Load } from './schemas/Load.schema';
+import { LoadOverTime } from './schemas/LoadOverTime.schema';
 
 @Injectable()
 export class LoadService {
   constructor(
     @InjectModel(Load.name)
     private readonly loadModel: Model<Load>,
+    @InjectModel(LoadOverTime.name)
+    private readonly loadOverTimeModel: Model<LoadOverTime>,
     @Inject(forwardRef(() => LocationService))
     private readonly locationService: LocationService,
     private readonly carrierService: CarrierService,
-  ) {}
+  ) {
+    // this.carrierService.getIds('Porsche').then(async (ids) => {
+    //   console.log('start sync');
+    //   let synced = 0;
+    //   await Promise.all(
+    //     ids.map((id) =>
+    //       this.syncOverTime(id).then(() =>
+    //         console.log(`Synced ${++synced} of ${ids.length}`),
+    //       ),
+    //     ),
+    //   );
+    //   console.log('all synced');
+    // });
+  }
 
   public async store(
     organisation: string,
@@ -71,6 +87,70 @@ export class LoadService {
           return this.loadModel.updateOne({ _id: l.id }, { $set: location });
         }
       }),
+    );
+  }
+
+  public async syncOverTime(carrierId: string): Promise<void> {
+    const times: {
+      load: number;
+      carrierId: string;
+      time: number;
+      timestamp: number;
+    }[] = await (this.loadModel as any).aggregate([
+      { $match: { carrierId, $expr: { $in: ['$load', [0, 1]] } } },
+      { $sort: { timestamp: 1 } },
+      { $group: { _id: 0, document: { $push: '$$ROOT' } } },
+      {
+        $project: {
+          prevDoc: {
+            $zip: {
+              inputs: [
+                '$document',
+                { $concatArrays: [[null], '$document.timestamp'] },
+                { $concatArrays: [[null], '$document.load'] },
+              ],
+            },
+          },
+        },
+      },
+      { $unwind: { path: '$prevDoc' } },
+      {
+        $replaceWith: {
+          $mergeObjects: [
+            { $arrayElemAt: ['$prevDoc', 0] },
+            { prevTime: { $arrayElemAt: ['$prevDoc', 1] } },
+            { prevLoad: { $arrayElemAt: ['$prevDoc', 2] } },
+          ],
+        },
+      },
+      {
+        $set: {
+          time: {
+            $cond: [
+              {
+                $and: [{ $eq: ['$load', '$prevLoad'] }],
+              },
+              {
+                $divide: [{ $subtract: ['$timestamp', '$prevTime'] }, 3600000],
+              },
+              0,
+            ],
+          },
+        },
+      },
+      { $unset: ['prevTime', 'prevLoad', 'location', '_id', '__v'] },
+      { $match: { time: { $gt: 0 } } },
+      { $unset: ['_id'] },
+    ]);
+
+    await Promise.all(
+      times.map(async (time) =>
+        this.loadOverTimeModel.updateOne(
+          { carrierId: time.carrierId, timestamp: time.timestamp },
+          { $set: time },
+          { upsert: true },
+        ),
+      ),
     );
   }
 
