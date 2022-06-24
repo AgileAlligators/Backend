@@ -34,6 +34,15 @@ export class LoadController {
     return this.loadService.getDiagram(organisation, filter);
   }
 
+  @ApiResponse({ type: [DiagramDto] })
+  @Post('diagram/time')
+  async getLoadOverTimeDiagram(
+    @ROrganisation() organisation: string,
+    @Body() filter?: DiagramFilterDto,
+  ): Promise<DiagramDto[]> {
+    return this.loadService.getDiagramTime(organisation, filter);
+  }
+
   @ApiResponse({ type: [HotspotDto] })
   @Post('hotspot')
   async getLoadHotspot(

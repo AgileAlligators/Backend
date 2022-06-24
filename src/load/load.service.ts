@@ -41,6 +41,9 @@ export class LoadService {
     //   );
     //   console.log('all synced');
     // });
+    // this.getDiagramTime('Porsche', {
+    //   ids: ['62b16e474e33eff002446bdc', '62b16e484e33eff002446bde'],
+    // }).then((res) => console.log(res));
   }
 
   public async store(
@@ -246,6 +249,73 @@ export class LoadService {
         return { name: id, data: data[index] };
       })
       .filter(({ data }) => data.length > 0);
+  }
+
+  public async getDiagramTime(
+    organisation: string,
+    filter?: DiagramFilterDto,
+  ): Promise<DiagramDto[]> {
+    let span = 0;
+    if (filter && filter.start && filter.end) {
+      span = (filter.end - filter.start) / 360000;
+    }
+
+    const { fq, ids } = await this.getOptions(organisation, filter);
+
+    if (ids.length <= 10) {
+      return (<any>this.loadOverTimeModel).aggregate([
+        { $match: fq },
+        {
+          $group: {
+            _id: { carrierId: '$carrierId', load: '$load' },
+            total: { $sum: '$time' },
+            carrierId: { $first: '$carrierId' },
+            load: { $first: '$load' },
+          },
+        },
+        {
+          $set: {
+            full: { $cond: [{ $eq: ['$load', 1] }, '$total', 0] },
+            empty: { $cond: [{ $eq: ['$load', 0] }, '$total', 0] },
+          },
+        },
+        {
+          $group: {
+            _id: '$carrierId',
+            full: { $sum: '$full' },
+            empty: { $sum: '$empty' },
+          },
+        },
+        { $set: { name: '$_id', data: ['$full', '$empty', span] } },
+        { $unset: ['_id', 'full', 'empty'] },
+      ]);
+    }
+
+    return (<any>this.loadOverTimeModel).aggregate([
+      { $match: fq },
+      {
+        $group: {
+          _id: { load: '$load' },
+          total: { $sum: '$time' },
+          load: { $first: '$load' },
+        },
+      },
+      {
+        $set: {
+          full: { $cond: [{ $eq: ['$load', 1] }, '$total', 0] },
+          empty: { $cond: [{ $eq: ['$load', 0] }, '$total', 0] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          full: { $sum: '$full' },
+          empty: { $sum: '$empty' },
+        },
+      },
+      { $set: { name: 'Durchschnitt', data: ['$full', '$empty', span] } },
+      { $unset: ['_id', 'full', 'empty'] },
+    ]);
   }
 
   private getPipeline(match: FilterQuery<Load>): PipelineStage[] {

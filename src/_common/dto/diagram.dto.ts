@@ -13,5 +13,5 @@ export class DiagramDto {
       { x: 1653751521059, y: 62.83 },
     ],
   })
-  data: { x: number; y: number }[];
+  data: ({ x: number; y: number } | number)[];
 }
