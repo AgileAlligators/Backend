@@ -81,7 +81,7 @@ export class VibrationService {
     organisation: string,
     dto: CarrierVibrationFilterDto,
   ): Promise<SearchResult<Vibration>> {
-    const { skip, limit } = dto;
+    const { skip, limit, minVibration } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
@@ -90,6 +90,8 @@ export class VibrationService {
       carrierId: { $in: ids },
       ...timestampFilter(dto),
     };
+
+    if (minVibration !== undefined) fq.vibration = { $gte: minVibration };
 
     return {
       total: await this.vibrationModel.countDocuments(fq),

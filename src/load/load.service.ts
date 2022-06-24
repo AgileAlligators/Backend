@@ -78,7 +78,7 @@ export class LoadService {
     organisation: string,
     dto: CarrierLoadFilterDto,
   ): Promise<SearchResult<Load>> {
-    const { skip, limit } = dto;
+    const { skip, limit, timestamp } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
@@ -87,6 +87,12 @@ export class LoadService {
       carrierId: { $in: ids },
       ...timestampFilter(dto),
     };
+
+    if (timestamp !== undefined) {
+      fq.timestamp = { $lte: timestamp };
+      qo.limit = 1;
+      qo.sort = { timestamp: -1 };
+    }
 
     return {
       total: await this.loadModel.countDocuments(fq),

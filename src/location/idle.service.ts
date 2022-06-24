@@ -53,7 +53,7 @@ export class IdleService {
     organisation: string,
     dto: CarrierIdleFilterDto,
   ): Promise<SearchResult<Idle>> {
-    const { skip, limit } = dto;
+    const { skip, limit, minIdle } = dto;
 
     const ids = await this.carrierService.getIds(organisation, dto);
 
@@ -62,6 +62,8 @@ export class IdleService {
       carrierId: { $in: ids },
       ...timestampFilter(dto),
     };
+
+    if (minIdle !== undefined) fq.idle = { $gte: minIdle };
 
     return {
       total: await this.idleModel.countDocuments(fq),
