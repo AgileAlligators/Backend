@@ -286,7 +286,18 @@ export class LoadService {
             empty: { $sum: '$empty' },
           },
         },
-        { $set: { name: '$_id', data: ['$full', '$empty', span] } },
+        {
+          $set: {
+            name: '$_id',
+            data: [
+              '$full',
+              '$empty',
+              {
+                $max: [0, { $subtract: [span, { $add: ['$full', '$empty'] }] }],
+              },
+            ],
+          },
+        },
         { $unset: ['_id', 'full', 'empty'] },
       ]);
     }
@@ -313,7 +324,18 @@ export class LoadService {
           empty: { $sum: '$empty' },
         },
       },
-      { $set: { name: 'Durchschnitt', data: ['$full', '$empty', span] } },
+      {
+        $set: {
+          name: 'Durchschnitt',
+          data: [
+            '$full',
+            '$empty',
+            {
+              $max: [0, { $subtract: [span, { $add: ['$full', '$empty'] }] }],
+            },
+          ],
+        },
+      },
       { $unset: ['_id', 'full', 'empty'] },
     ]);
   }
